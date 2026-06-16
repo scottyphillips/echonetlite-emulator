@@ -4,6 +4,7 @@
   "private": true,
   "proxy": "http://localhost:3000",
   "dependencies": {
+    "dotenv": "^16.6.1",
     "echonet-lite": "^2.5.7",
     "express": "^4.17.1",
     "ip": "^1.1.5",

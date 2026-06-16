@@ -600,33 +600,36 @@ export class Controller {
       }
       this.logger.dir(this.shutterStatus, { depth: 3 });
     }
-    if (
-      this.bathWaterHeaterStatus.auto === "on" &&
-      this.bathWaterHeaterStatus.waterLevel < 100
-    ) {
-      this.bathWaterHeaterStatus.waterLevel += 20;
-      if (this.bathWaterHeaterStatus.waterLevel >= 100) {
-        this.bathWaterHeaterStatus.waterLevel = 100;
-        this.bathWaterHeaterStatus.state = "full";
-        this.bathWaterHeaterEchoStatus.echoObject["026b01"]["ea"] = [0x43]; //保温中=0x43
-        this.sendPropertyChanged(
-          this.bathWaterHeaterEchoStatus,
-          "026b01",
-          "ea"
-        );
+    // Skip bath water heater timer logic if disabled
+    if (this.bathWaterHeaterEchoStatus.enabled) {
+      if (
+        this.bathWaterHeaterStatus.auto === "on" &&
+        this.bathWaterHeaterStatus.waterLevel < 100
+      ) {
+        this.bathWaterHeaterStatus.waterLevel += 20;
+        if (this.bathWaterHeaterStatus.waterLevel >= 100) {
+          this.bathWaterHeaterStatus.waterLevel = 100;
+          this.bathWaterHeaterStatus.state = "full";
+          this.bathWaterHeaterEchoStatus.echoObject["026b01"]["ea"] = [0x43]; //保温中=0x43
+          this.sendPropertyChanged(
+            this.bathWaterHeaterEchoStatus,
+            "026b01",
+            "ea"
+          );
+        }
+        this.logger.dir(this.bathWaterHeaterStatus, { depth: 3 });
       }
-      this.logger.dir(this.bathWaterHeaterStatus, { depth: 3 });
-    }
-    if (
-      this.bathWaterHeaterStatus.auto === "off" &&
-      this.bathWaterHeaterStatus.waterLevel > 0
-    ) {
-      this.bathWaterHeaterStatus.waterLevel -= 20;
-      if (this.bathWaterHeaterStatus.waterLevel <= 0) {
-        this.bathWaterHeaterStatus.waterLevel = 0;
-        this.bathWaterHeaterStatus.state = "empty";
+      if (
+        this.bathWaterHeaterStatus.auto === "off" &&
+        this.bathWaterHeaterStatus.waterLevel > 0
+      ) {
+        this.bathWaterHeaterStatus.waterLevel -= 20;
+        if (this.bathWaterHeaterStatus.waterLevel <= 0) {
+          this.bathWaterHeaterStatus.waterLevel = 0;
+          this.bathWaterHeaterStatus.state = "empty";
+        }
+        this.logger.dir(this.bathWaterHeaterStatus, { depth: 3 });
       }
-      this.logger.dir(this.bathWaterHeaterStatus, { depth: 3 });
     }
   };
 

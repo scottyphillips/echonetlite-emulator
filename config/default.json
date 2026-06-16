@@ -10,124 +10,46 @@
     "delayTime": 0,
     "webPort": 3000
   },
-  "devices": [
-    {
-      "name": "Ceiling Light",
-      "plugin": "ceilingLight",
-      "eojgc": "0x02",
-      "eojcc": "0x91",
-      "instance": 1,
-      "enabled": true,
-      "properties": {
-        "state": "on"
-      }
+  "devices": {
+    "monoFunctionalLighting": {
+      "disabled": false,
+      "id": ""
     },
-    {
-      "name": "Temperature Sensor",
-      "plugin": "temperatureSensor",
-      "eojgc": "0x00",
-      "eojcc": "0x11",
-      "instance": 1,
-      "enabled": true,
-      "properties": {
-        "temp": 25.0
-      }
+    "temperatureSensor": {
+      "disabled": false,
+      "id": ""
     },
-    {
-      "name": "Humidity Sensor",
-      "plugin": "humiditySensor",
-      "eojgc": "0x00",
-      "eojcc": "0x12",
-      "instance": 1,
-      "enabled": true,
-      "properties": {
-        "hum": 50
-      }
+    "humiditySensor": {
+      "disabled": false,
+      "id": ""
     },
-    {
-      "name": "Human Detection Sensor",
-      "plugin": "humanDetectionSensor",
-      "eojgc": "0x00",
-      "eojcc": "0x07",
-      "instance": 1,
-      "enabled": true,
-      "properties": {
-        "state": "notDetected"
-      }
+    "humanDetectionSensor": {
+      "disabled": false,
+      "id": ""
     },
-    {
-      "name": "General Lighting",
-      "plugin": "generalLighting",
-      "eojgc": "0x02",
-      "eojcc": "0x90",
-      "instance": 1,
-      "enabled": true,
-      "properties": {
-        "state": "on",
-        "color": "white"
-      }
+    "generalLighting": {
+      "disabled": false,
+      "id": ""
     },
-    {
-      "name": "Shutter",
-      "plugin": "shutter",
-      "eojgc": "0x02",
-      "eojcc": "0x63",
-      "instance": 1,
-      "enabled": true,
-      "properties": {
-        "state": "opened",
-        "position": 100
-      }
+    "electricallyOperatedRainSlidingDoorShutter": {
+      "disabled": false,
+      "id": ""
     },
-    {
-      "name": "Door + Electric Lock",
-      "plugin": "electricLock",
-      "eojgc": "0x02",
-      "eojcc": "0x6F",
-      "instance": 1,
-      "enabled": true,
-      "properties": {
-        "state": "closed",
-        "lockState": "locked"
-      }
+    "electricLock": {
+      "disabled": false,
+      "id": ""
     },
-    {
-      "name": "Bath Water Heater",
-      "plugin": "bathWaterHeater",
-      "eojgc": "0x02",
-      "eojcc": "0x6B",
-      "instance": 1,
-      "enabled": true,
-      "properties": {
-        "state": "empty",
-        "auto": "off",
-        "temp": 40,
-        "waterLevel": 0
-      }
+    "switch": {
+      "disabled": false,
+      "id": ""
     },
-    {
-      "name": "Home Air Conditioner",
-      "plugin": "homeAirConditioner",
-      "eojgc": "0x01",
-      "eojcc": "0x30",
-      "instance": 1,
-      "enabled": true,
-      "properties": {
-        "state": "off",
-        "temp": 25,
-        "internalMode": "cool"
-      }
+    "electricWaterHeater": {
+      "disabled": true,
+      "id": ""
     },
-    {
-      "name": "Switch (JEM-A)",
-      "plugin": "switch",
-      "eojgc": "0x05",
-      "eojcc": "0xFD",
-      "instance": 1,
-      "enabled": true,
-      "properties": {
-        "state": "off"
-      }
+    "homeAirConditioner": {
+      "disabled": false,
+      "id": ""
     }
-  ]
+  }
 }
