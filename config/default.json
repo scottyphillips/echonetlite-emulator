@@ -1,0 +1,133 @@
+{
+  "nodeProfile": {
+    "manufacturer": "TestLab",
+    "manufacturerName": "Test Laboratory",
+    "productCode": "0x54 0x45 0x53 0x54",
+    "uid": "fe000000000000000000000000000001"
+  },
+  "network": {
+    "targetNetwork": "",
+    "delayTime": 0,
+    "webPort": 3000
+  },
+  "devices": [
+    {
+      "name": "Ceiling Light",
+      "plugin": "ceilingLight",
+      "eojgc": "0x02",
+      "eojcc": "0x91",
+      "instance": 1,
+      "enabled": true,
+      "properties": {
+        "state": "on"
+      }
+    },
+    {
+      "name": "Temperature Sensor",
+      "plugin": "temperatureSensor",
+      "eojgc": "0x00",
+      "eojcc": "0x11",
+      "instance": 1,
+      "enabled": true,
+      "properties": {
+        "temp": 25.0
+      }
+    },
+    {
+      "name": "Humidity Sensor",
+      "plugin": "humiditySensor",
+      "eojgc": "0x00",
+      "eojcc": "0x12",
+      "instance": 1,
+      "enabled": true,
+      "properties": {
+        "hum": 50
+      }
+    },
+    {
+      "name": "Human Detection Sensor",
+      "plugin": "humanDetectionSensor",
+      "eojgc": "0x00",
+      "eojcc": "0x07",
+      "instance": 1,
+      "enabled": true,
+      "properties": {
+        "state": "notDetected"
+      }
+    },
+    {
+      "name": "General Lighting",
+      "plugin": "generalLighting",
+      "eojgc": "0x02",
+      "eojcc": "0x90",
+      "instance": 1,
+      "enabled": true,
+      "properties": {
+        "state": "on",
+        "color": "white"
+      }
+    },
+    {
+      "name": "Shutter",
+      "plugin": "shutter",
+      "eojgc": "0x02",
+      "eojcc": "0x63",
+      "instance": 1,
+      "enabled": true,
+      "properties": {
+        "state": "opened",
+        "position": 100
+      }
+    },
+    {
+      "name": "Door + Electric Lock",
+      "plugin": "electricLock",
+      "eojgc": "0x02",
+      "eojcc": "0x6F",
+      "instance": 1,
+      "enabled": true,
+      "properties": {
+        "state": "closed",
+        "lockState": "locked"
+      }
+    },
+    {
+      "name": "Bath Water Heater",
+      "plugin": "bathWaterHeater",
+      "eojgc": "0x02",
+      "eojcc": "0x6B",
+      "instance": 1,
+      "enabled": true,
+      "properties": {
+        "state": "empty",
+        "auto": "off",
+        "temp": 40,
+        "waterLevel": 0
+      }
+    },
+    {
+      "name": "Home Air Conditioner",
+      "plugin": "homeAirConditioner",
+      "eojgc": "0x01",
+      "eojcc": "0x30",
+      "instance": 1,
+      "enabled": true,
+      "properties": {
+        "state": "off",
+        "temp": 25,
+        "internalMode": "cool"
+      }
+    },
+    {
+      "name": "Switch (JEM-A)",
+      "plugin": "switch",
+      "eojgc": "0x05",
+      "eojcc": "0xFD",
+      "instance": 1,
+      "enabled": true,
+      "properties": {
+        "state": "off"
+      }
+    }
+  ]
+}

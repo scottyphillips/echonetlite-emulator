@@ -2,6 +2,7 @@
 import express from "express";
 import EL from "echonet-lite";
 import { Settings } from "./Settings";
+import { InspectOptions } from "util";
 
 export type EchoObject = { [key: string]: { [key: string]: number[] } };
 
@@ -62,7 +63,7 @@ export type sendPropertyChangedMethod = (
 
 export interface ILogger {
   log: (log: string) => void;
-  dir: (obj: any, options?: NodeJS.InspectOptions) => void;
+  dir: (obj: any, options?: InspectOptions) => void;
 }
 
 export class Controller {

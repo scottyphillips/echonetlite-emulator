@@ -5,6 +5,7 @@ import os from "os";
 import ip from "ip";
 import fs from "fs";
 import { Settings } from "./Settings";
+import { InspectOptions } from "util";
 
 let echonetTargetNetwork = ""; //"192.168.1.0/24";
 let echonetDelayTime = 0;
@@ -69,7 +70,7 @@ class Logger implements ILogger {
     }
     console.log(new Date().toISOString() + "\t" + log);
   }
-  dir(obj: any, options?: NodeJS.InspectOptions): void {
+  dir(obj: any, options?: InspectOptions): void {
     if (this.logOut === false) {
       return;
     }
@@ -128,9 +129,9 @@ if (echonetTargetNetwork.match(/[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+\/[0-9]+/)) {
   const matchedNetworkAddresses = Object.keys(interfaces)
     .map((key) => interfaces[key])
     .flat()
-    .filter((_) => ip.cidrSubnet(echonetTargetNetwork).contains(_.address));
+    .filter((_) => _ !== undefined && ip.cidrSubnet(echonetTargetNetwork).contains(_.address!));
   if (matchedNetworkAddresses.length >= 1) {
-    usedIpByEchoNet = matchedNetworkAddresses[0].address;
+    usedIpByEchoNet = matchedNetworkAddresses[0]!.address;
   }
 }
 
