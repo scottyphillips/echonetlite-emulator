@@ -420,6 +420,112 @@
             background-color: var(--bg-card);
         }
 
+        /* Device Management Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: rgba(0,0,0,0.6);
+            z-index: 200;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 24px;
+            cursor: pointer;
+            padding: 4px 8px;
+        }
+
+        .modal-close:hover {
+            color: var(--text-primary);
+        }
+
+        .device-list-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            background-color: rgba(0,0,0,0.2);
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+
+        .device-list-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .device-list-eoj {
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .device-list-name {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* Message Alert */
+        .message-alert {
+            position: fixed;
+            top: 80px;
+            right: 24px;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            z-index: 300;
+            animation: slideIn 0.3s ease;
+        }
+
+        .message-alert.success {
+            background-color: var(--accent-green);
+            color: white;
+        }
+
+        .message-alert.error {
+            background-color: var(--accent-red);
+            color: white;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .device-grid {
@@ -468,7 +574,7 @@
                 </button>
                 <ul class="dropdown-menu">
                     <li><a class="dropdown-item" href="#" onclick="sendInstanceListNotification()">Send Instance List Notification (0xD5)</a></li>
-                    <li><a class="dropdown-item" href="edit.html">Edit Instance List</a></li>
+                    <li><a class="dropdown-item" href="#" onclick="openDeviceManager()">Manage Devices</a></li>
                 </ul>
             </div>
         </div>
@@ -489,7 +595,7 @@
                         </div>
                     </div>
                     <label class="card-toggle">
-                        <input type="checkbox" checked onchange="toggleDevice('airConditioner', this.checked)">
+                        <input type="checkbox" checked onchange="toggleDevice('airConditioner', '013001', this.checked)">
                         <span class="toggle-slider"></span>
                     </label>
                 </div>
@@ -533,7 +639,7 @@
                         </div>
                     </div>
                     <label class="card-toggle">
-                        <input type="checkbox" checked onchange="toggleDevice('ceilingLight', this.checked)">
+                        <input type="checkbox" checked onchange="toggleDevice('ceilingLight', '029101', this.checked)">
                         <span class="toggle-slider"></span>
                     </label>
                 </div>
@@ -561,11 +667,11 @@
                         <div class="device-icon lighting">&#9729;</div>
                         <div>
                             <div class="device-name">Floor Light</div>
-                            <div class="device-eoj">EOJ: 029001 - General Lighting</div>
+                            <div class="device-eoj">EOJ: 029001 - Mono Functional Lighting</div>
                         </div>
                     </div>
                     <label class="card-toggle">
-                        <input type="checkbox" checked onchange="toggleDevice('floorLight', this.checked)">
+                        <input type="checkbox" checked onchange="toggleDevice('floorLight', '029001', this.checked)">
                         <span class="toggle-slider"></span>
                     </label>
                 </div>
@@ -605,7 +711,7 @@
                         </div>
                     </div>
                     <label class="card-toggle">
-                        <input type="checkbox" checked onchange="toggleDevice('tempSensor', this.checked)">
+                        <input type="checkbox" checked onchange="toggleDevice('tempSensor', '001101', this.checked)">
                         <span class="toggle-slider"></span>
                     </label>
                 </div>
@@ -636,7 +742,7 @@
                         </div>
                     </div>
                     <label class="card-toggle">
-                        <input type="checkbox" checked onchange="toggleDevice('humSensor', this.checked)">
+                        <input type="checkbox" checked onchange="toggleDevice('humSensor', '001201', this.checked)">
                         <span class="toggle-slider"></span>
                     </label>
                 </div>
@@ -667,7 +773,7 @@
                         </div>
                     </div>
                     <label class="card-toggle">
-                        <input type="checkbox" checked onchange="toggleDevice('motionSensor', this.checked)">
+                        <input type="checkbox" checked onchange="toggleDevice('motionSensor', '000701', this.checked)">
                         <span class="toggle-slider"></span>
                     </label>
                 </div>
@@ -698,7 +804,7 @@
                         </div>
                     </div>
                     <label class="card-toggle">
-                        <input type="checkbox" checked onchange="toggleDevice('shutter', this.checked)">
+                        <input type="checkbox" checked onchange="toggleDevice('shutter', '026301', this.checked)">
                         <span class="toggle-slider"></span>
                     </label>
                 </div>
@@ -739,7 +845,7 @@
                         </div>
                     </div>
                     <label class="card-toggle">
-                        <input type="checkbox" checked onchange="toggleDevice('door', this.checked)">
+                        <input type="checkbox" checked onchange="toggleDevice('door', '026f01', this.checked)">
                         <span class="toggle-slider"></span>
                     </label>
                 </div>
@@ -780,7 +886,7 @@
                         </div>
                     </div>
                     <label class="card-toggle">
-                        <input type="checkbox" checked onchange="toggleDevice('bath', this.checked)">
+                        <input type="checkbox" checked onchange="toggleDevice('bath', '026b01', this.checked)">
                         <span class="toggle-slider"></span>
                     </label>
                 </div>
@@ -819,6 +925,23 @@
         </div>
     </div>
 
+    <!-- Device Management Modal -->
+    <div class="modal-overlay" id="deviceManagerModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Manage Devices</h3>
+                <button class="modal-close" onclick="closeDeviceManager()">&times;</button>
+            </div>
+            <div id="deviceListContainer">
+                <!-- Device list will be populated dynamically -->
+            </div>
+            <div style="margin-top: 20px; display: flex; gap: 12px;">
+                <button type="button" class="btn btn-primary" onclick="saveDeviceSettings()" style="padding: 10px 20px; border-radius: 8px; background-color: var(--accent-blue); border: none; color: white; cursor: pointer;">Save</button>
+                <button type="button" class="btn btn-secondary" onclick="closeDeviceManager(); getStatus();" style="padding: 10px 20px; border-radius: 8px; background-color: transparent; border: 1px solid var(--border-color); color: var(--text-primary); cursor: pointer;">Cancel</button>
+            </div>
+        </div>
+    </div>
+
     <script src="js/bootstrap.bundle.min.js"></script>
     <script type="text/javascript">
         // ============================================================
@@ -827,7 +950,7 @@
         
         let currentStatus = {
             airConditioner: { state: "off", temp: 20 },
-            ceilingLight: { state: "off" },
+            ceilingLight: { state: "on" },
             floorLight: { state: "on", color: "white" },
             sensorMeter: { temp: 20.0, hum: 50 },
             motionSensor: { state: "notDetected" },
@@ -836,10 +959,40 @@
             bathWaterHeater: { state: "empty", auto: "off", temp: 40, waterLevel: 0 }
         };
 
+        // Device EOJ mapping for the device manager modal
+        const deviceEojMap = [
+            { key: 'ceilingLight', eoj: '029101', name: 'Ceiling Light' },
+            { key: 'tempSensor', eoj: '001101', name: 'Temperature Sensor' },
+            { key: 'humSensor', eoj: '001201', name: 'Humidity Sensor' },
+            { key: 'motionSensor', eoj: '000701', name: 'Motion Sensor' },
+            { key: 'floorLight', eoj: '029001', name: 'Floor Light' },
+            { key: 'shutter', eoj: '026301', name: 'Shutter' },
+            { key: 'door', eoj: '026f01', name: 'Entrance Door' },
+            { key: 'bath', eoj: '026b01', name: 'Bath Water Heater' },
+            { key: 'airConditioner', eoj: '013001', name: 'Air Conditioner' }
+        ];
+
+        // Japanese names for device display in modal
+        const eojNameMap = [
+            {eoj:"029101",name:"単機能照明"},
+            {eoj:"001101",name:"温度センサ"},
+            {eoj:"001201",name:"湿度センサ"},
+            {eoj:"000701",name:"人体検知センサ"},
+            {eoj:"029001",name:"一般照明"},
+            {eoj:"026301",name:"電動雨戸・シャッター"},
+            {eoj:"026f01",name:"電気錠"},
+            {eoj:"05fd01",name:"スイッチ"},
+            {eoj:"026b01",name:"電気温水器"},
+            {eoj:"013001",name:"家庭用エアコン"}
+        ];
+
         // Debounce timers for sliders
         let acTempTimer = null;
         let sensorTimer = null;
         let bathTempTimer = null;
+
+        // Temporary device states for modal editing
+        let tempDeviceStates = {};
 
         // ============================================================
         // API Functions
@@ -862,7 +1015,9 @@
                     body: JSON.stringify({ state: mode, temp: currentStatus.airConditioner.temp })
                 });
                 if (res.ok) getStatus();
-            } catch (e) { console.error("AC mode error:", e); }
+            } catch (e) {
+                console.error("AC mode error:", e);
+            }
         }
 
         function updateACTempDisplay() {
@@ -1050,13 +1205,97 @@
             } catch (e) { console.error("Bath auto error:", e); }
         }
 
-        // Device Toggle (enable/disable)
-        async function toggleDevice(device, enabled) {
-            // This would typically call an API to enable/disable devices
-            const card = document.getElementById('card-' + device);
+        // Device Toggle (enable/disable) - Now properly calls the API to disable instances
+        async function toggleDevice(deviceKey, eojCode, enabled) {
+            const card = document.getElementById('card-' + deviceKey);
             if (card) {
                 card.classList.toggle('disabled', !enabled);
             }
+
+            // Send the change to the server via API
+            await saveDeviceSettings();
+        }
+
+        // Save device settings (used by both card toggles and modal)
+        async function saveDeviceSettings() {
+            const echoObjects = [];
+            
+            // Collect current state from all device cards
+            for (const device of deviceEojMap) {
+                const card = document.getElementById('card-' + device.key);
+                const toggle = card?.querySelector('.card-toggle input');
+                const enabled = toggle ? toggle.checked : true;
+                
+                echoObjects.push({
+                    eoj: device.eoj,
+                    enabled: enabled
+                });
+            }
+
+            try {
+                const res = await fetch("/api/commands/changedevices", {
+                    method: "POST",
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(echoObjects)
+                });
+                
+                if (res.ok) {
+                    showMessage('Devices updated successfully', 'success');
+                } else {
+                    showMessage('Failed to update devices', 'error');
+                }
+            } catch (e) {
+                console.error("Save device settings error:", e);
+                showMessage('Error saving device settings', 'error');
+            }
+
+            // Close modal if open
+            closeDeviceManager();
+        }
+
+        // Device Manager Modal Functions
+        function openDeviceManager() {
+            const container = document.getElementById('deviceListContainer');
+            container.innerHTML = '';
+            
+            // Build device list from the API status data
+            for (const device of deviceEojMap) {
+                const japaneseName = eojNameMap.find(_ => _.eoj === device.eoj)?.name ?? device.name;
+                
+                const item = document.createElement('div');
+                item.className = 'device-list-item';
+                item.innerHTML = `
+                    <div class="device-list-info">
+                        <div>
+                            <div class="device-list-name">${japaneseName} (${device.name})</div>
+                            <div class="device-list-eoj">${device.eoj}</div>
+                        </div>
+                    </div>
+                    <label class="card-toggle">
+                        <input type="checkbox" id="modal-toggle-${device.eoj}" ${tempDeviceStates[device.eoj] ?? true}>
+                        <span class="toggle-slider"></span>
+                    </label>
+                `;
+                container.appendChild(item);
+            }
+
+            document.getElementById('deviceManagerModal').classList.add('active');
+        }
+
+        function closeDeviceManager() {
+            document.getElementById('deviceManagerModal').classList.remove('active');
+        }
+
+        // Message display helper
+        function showMessage(message, type) {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `message-alert ${type}`;
+            msgDiv.textContent = message;
+            document.body.appendChild(msgDiv);
+            
+            setTimeout(() => {
+                msgDiv.remove();
+            }, 3000);
         }
 
         // ============================================================
@@ -1212,6 +1451,27 @@
                 // Update connection indicator
                 document.getElementById('connectionDot').style.backgroundColor = 'var(--accent-green)';
                 document.getElementById('connectionStatus').textContent = 'Connected';
+
+                // Update device toggle states based on enabled property from API
+                if (status.echoObjects) {
+                    for (const echoObj of status.echoObjects) {
+                        const enabled = echoObj.enabled;
+                        const eoj = echoObj.eoj;
+                        
+                        // Find the corresponding card and toggle
+                        const device = deviceEojMap.find(d => d.eoj === eoj);
+                        if (device) {
+                            const card = document.getElementById('card-' + device.key);
+                            const toggle = card?.querySelector('.card-toggle input');
+                            
+                            if (toggle && toggle.checked !== enabled) {
+                                toggle.checked = enabled;
+                                card?.classList.toggle('disabled', !enabled);
+                            }
+                        }
+                    }
+                }
+
             } catch (e) {
                 // Connection error
                 document.getElementById('connectionDot').style.backgroundColor = 'var(--accent-red)';
