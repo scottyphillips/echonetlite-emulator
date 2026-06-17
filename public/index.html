@@ -967,7 +967,8 @@
             { key: 'motionSensor', eoj: '000701', name: 'Motion Sensor' },
             { key: 'floorLight', eoj: '029001', name: 'Floor Light' },
             { key: 'shutter', eoj: '026301', name: 'Shutter' },
-            { key: 'door', eoj: '026f01', name: 'Entrance Door' },
+            // Entrance Door is linked to Switch (0x05FD01) - both share the same toggle in controller.ts
+            { key: 'door', eoj: '026f01', name: 'Entrance Door', linkedEojs: ['05fd01'] },
             { key: 'bath', eoj: '026b01', name: 'Bath Water Heater' },
             { key: 'airConditioner', eoj: '013001', name: 'Air Conditioner' }
         ];
@@ -1220,16 +1221,34 @@
         async function saveDeviceSettings() {
             const echoObjects = [];
             
+            // Track which EOJs have been processed to avoid duplicates
+            const processedEojs = new Set();
+            
             // Collect current state from all device cards
             for (const device of deviceEojMap) {
                 const card = document.getElementById('card-' + device.key);
                 const toggle = card?.querySelector('.card-toggle input');
                 const enabled = toggle ? toggle.checked : true;
                 
+                // Add the primary EOJ
                 echoObjects.push({
                     eoj: device.eoj,
                     enabled: enabled
                 });
+                processedEojs.add(device.eoj.toLowerCase());
+                
+                // Add any linked EOJs with the same enabled state (e.g., Door + Switch)
+                if (device.linkedEojs) {
+                    for (const linkedEoj of device.linkedEojs) {
+                        if (!processedEojs.has(linkedEoj.toLowerCase())) {
+                            echoObjects.push({
+                                eoj: linkedEoj,
+                                enabled: enabled
+                            });
+                            processedEojs.add(linkedEoj.toLowerCase());
+                        }
+                    }
+                }
             }
 
             try {
