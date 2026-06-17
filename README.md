@@ -2,7 +2,6 @@
 
 [![MIT License](https://img.shields.io/github/license/scottyphillips/echonet-lite-kaden-emulator)](LICENSE)
 [![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/scottyphillips/echonet-lite-kaden-emulator/action.yml)](https://github.com/scottyphillips/echonet-lite-kaden-emulator/actions/workflows/action.yml)
-[![Docker Hub](https://img.shields.io/docker/pulls/scottyphillips/echonet-lite-kaden-emulator)](https://hub.docker.com/r/scottyphillips/echonet-lite-kaden-emulator)
 
 An ECHONET Lite emulator that controls virtual home appliances. **This project is a fork of the original [banban525/echonet-lite-kaden-emulator](https://github.com/banban525/echonet-lite-kaden-emulator).**
 
@@ -65,30 +64,6 @@ The web interface features a professional, card-based dashboard layout:
 | Bath Water Heater | Auto mode, Temperature setting, Water level indicator |
 
 ## Usage
-
-### Running with Docker
-
-**Requirements:** Docker (version 20+ recommended)
-
-#### Option 1: Expose ECHONET Lite on the host network
-
-```bash
-docker run -d --net=host banban525/echonet-lite-kaden-emulator:latest
-```
-
-Use this method when you want to run the emulator on a PC that acts as an ECHONET Lite node on your network. Note that only one ECHONET Lite node can operate per IP address.
-
-#### Option 2: Expose ECHONET Lite inside Docker's network
-
-```bash
-docker run -d -p 3000:3000 banban525/echonet-lite-kaden-emulator:latest
-```
-
-Use this method when running multiple emulator nodes on a single machine (each container needs different port mappings).
-
-#### Access the Web UI
-
-After starting, open your browser to `http://<server-ip>:3000/`
 
 ### Running with Node.js
 
