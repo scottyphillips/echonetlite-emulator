@@ -751,7 +751,7 @@ export class Controller {
         b2: [0x40], //   沸き上げ中状態	0xB2	沸き上げ中＝0x41
         c0: [0x42], //   昼間沸き増し許可設定	0xC0	昼間沸き増し禁止＝0x42
         c3: [0x42], //   給湯中状態	0xC3	非給湯中=0x42	(湯はりは除く)
-        cc: Array.from(new Array(16)).map((_) => 0x00), //   時間当たり消費電力量 1	0xCC	0x0000 (Official MRA property for EOJ 0x026B)
+        // cc: Array.from(new Array(16)).map((_) => 0x00), //   時間当たり消費電力量 1	0xCC	0x0000 (Official MRA property for EOJ 0x026B)
         e3: [0x42], //   風呂自動モード設定	0xE3	自動入＝0x41，自動解除＝0x42
         // c7: [0x00], //   エネルギーシフト参加状態	0xC7	不参加	0x00
         // c8: [0x14], //   沸き上げ開始基準時刻	0xC8	20 時 0x14
