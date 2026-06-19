@@ -710,7 +710,12 @@ async function userFunc(rinfo: rinfo, els: eldata): Promise<void> {
       (_) => _.enabled && els.DEOJ in _.echoObject
     );
 
-    for (const propertyCode in els.DETAILs) {
+    // Throttle: only process first 6 EPCs to avoid timeout with large batches
+    const MAX_EPC_PER_REQUEST = 6;
+    const allPropertyCodes = Object.keys(els.DETAILs);
+    const propertyCodeSlice = allPropertyCodes.slice(0, MAX_EPC_PER_REQUEST);
+
+    for (const propertyCode in propertyCodeSlice) {
       // Find the matching device and check if property exists
       let found = false;
       for (const status of matchedEchoObjects) {
