@@ -1130,10 +1130,9 @@ export class Controller {
         getPropertiesPart2[0] = getProperties.length - 1;
         for (let i = 1; i < getProperties.length; i++) {
           const propCode = getProperties[i];
-          const index = (propCode % 0x10) + 1;
-          const bit = (propCode >> 4) - 8;
-
-          getPropertiesPart2[index] = getPropertiesPart2[index] | (0x01 << bit);
+          const byteIndex = Math.floor((propCode - 0x80) / 8) + 1;  // which of the 16 bitmap bytes
+          const bit = (propCode - 0x80) % 8;                         // which bit within that byte
+          getPropertiesPart2[byteIndex] = getPropertiesPart2[byteIndex] | (0x01 << bit);
         }
         echoObject[key]["9f"] = getPropertiesPart2;
       }
