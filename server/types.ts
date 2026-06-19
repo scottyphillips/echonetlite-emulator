@@ -1,37 +1,63 @@
-/**
- * ECHONET Lite Core Types
- * 
- * Defines the fundamental data structures for the ECHONET Lite emulator.
- */
-
-import { InspectOptions } from "util";
-
-// ---------------------------------------------------------------------------
-// Core ECHONET Types
-// ---------------------------------------------------------------------------
-
-/**
- * ECHONET Object (EOJ) structure.
- * Key: EOJ address (e.g., "013001")
- * Value: Property map where key is EPC code and value is array of hex bytes
- */
 export type EchoObject = { [key: string]: { [key: string]: number[] } };
 
-/**
- * ECHONET device status wrapper.
- * Contains the EOJ address, echo object definition, and enabled state.
- */
 export interface EchoStatus {
-  eoj: string;           // EOJ address (e.g., "013001")
+  eoj: string;
   echoObject: EchoObject;
   enabled: boolean;
 }
 
-// ---------------------------------------------------------------------------
-// Logger Interface
-// ---------------------------------------------------------------------------
-
 export interface ILogger {
-  log(message: string): void;
-  dir(obj: any, options?: InspectOptions): void;
+  log: (log: string) => void;
+  dir: (obj: any, options?: import("util").InspectOptions) => void;
+}
+
+export type SendPropertyChangedMethod = (
+  echoStatus: EchoStatus,
+  soej: string,
+  propertyNo: string,
+  newValue: number[]
+) => void;
+
+// Device Status Interfaces
+
+export interface CellingLightStatus {
+  state: "on" | "off";
+}
+
+export interface SensorMeterStatus {
+  temp: number;
+  hum: number;
+}
+
+export interface MotionSensorStatus {
+  state: "detected" | "notDetected";
+}
+
+export interface FloorLightStatus {
+  state: "on" | "off";
+  color: "lamp" | "white" | "neutralWhite";
+}
+
+export interface ShutterStatus {
+  state: "opened" | "opening" | "halfOpen" | "closing" | "closed";
+  position: number; // 0:全閉、100:全開
+  move: "opening" | "stopped" | "closing";
+}
+
+export interface DoorStatus {
+  state: "closed" | "opened";
+  lockState: "unlocked" | "locked";
+}
+
+export interface BathWaterHeaterStatus {
+  state: "empty" | "supply" | "drainage" | "full";
+  auto: "off" | "on";
+  temp: number;
+  waterLevel: number; // 0:空、100:Full
+}
+
+export interface AirConditionerStatus {
+  state: "off" | "cool" | "heat" | "dry" | "wind";
+  temp: number;
+  internalMode: "cool" | "heat" | "dry" | "wind";
 }
