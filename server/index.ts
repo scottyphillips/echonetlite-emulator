@@ -711,7 +711,7 @@ async function userFunc(rinfo: rinfo, els: eldata): Promise<void> {
     );
 
     // Throttle: only process first 6 EPCs to avoid timeout with large batches
-    const MAX_EPC_PER_REQUEST = 6;
+    const MAX_EPC_PER_REQUEST = 8;
     const allPropertyCodes = Object.keys(els.DETAILs);
     const propertyCodeSlice = allPropertyCodes.slice(0, MAX_EPC_PER_REQUEST);
 
