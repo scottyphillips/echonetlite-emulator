@@ -922,6 +922,57 @@
                 </div>
             </div>
 
+            <!-- Distribution Panel Meter Card -->
+            <div class="device-card" id="card-distributionPanelMeter">
+                <div class="card-header">
+                    <div class="card-header-left">
+                        <div class="device-icon sensor">&#9881;</div>
+                        <div>
+                            <div class="device-name">Distribution Panel Meter</div>
+                            <div class="device-eoj">EOJ: 05FF01 - DistributionPanelMeter Controller</div>
+                        </div>
+                    </div>
+                    <label class="card-toggle">
+                        <input type="checkbox" checked onchange="toggleDevice('distributionPanelMeter', '05ff01', this.checked)">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="card-body">
+                    <div class="status-grid">
+                        <div class="status-item">
+                            <div class="status-label">Operation Status</div>
+                            <div class="status-value" id="dpm-status-display">--</div>
+                        </div>
+                        <div class="status-item">
+                            <div class="status-label">Fault Status</div>
+                            <div class="status-value" id="dpm-fault-display">--</div>
+                        </div>
+                        <div class="status-item">
+                            <div class="status-label">Power Consumption</div>
+                            <div class="status-value"><span id="dpm-power-display">0</span><span class="unit">W</span></div>
+                        </div>
+                        <div class="status-item">
+                            <div class="status-label">Energy Consumption</div>
+                            <div class="status-value"><span id="dpm-energy-display">0.000</span><span class="unit">kWh</span></div>
+                        </div>
+                    </div>
+                    <div class="control-section">
+                        <div class="control-label">Current Limit</div>
+                        <div class="slider-container">
+                            <input type="range" min="0" max="100" step="1" value="100" id="dpm-limit-slider" oninput="updateDpmlLimitDisplay(); updateDpmlLimit()">
+                            <span class="slider-value" id="dpm-limit-slider-val">100%</span>
+                        </div>
+                    </div>
+                    <div class="control-section" style="margin-top: 12px;">
+                        <div class="action-buttons">
+                            <button class="action-btn" onclick="toggleDpmlStatus()">Toggle Status</button>
+                            <button class="action-btn" onclick="setDpmlOperationStatus(true)">ON</button>
+                            <button class="action-btn danger" onclick="setDpmlOperationStatus(false)">OFF</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 
@@ -956,7 +1007,8 @@
             motionSensor: { state: "notDetected" },
             shutter: { state: "closed", position: 0, move: "stopped" },
             door: { state: "closed", lockState: "unlocked" },
-            bathWaterHeater: { state: "empty", auto: "off", temp: 40, waterLevel: 0 }
+            bathWaterHeater: { state: "empty", auto: "off", temp: 40, waterLevel: 0 },
+            distributionPanelMeter: { operationStatus: "on", faultStatus: "noFault", instantaneousPowerConsumption: 0, cumulativeElectricEnergy: 0, currentLimit: 100 }
         };
 
         // Device EOJ mapping for the device manager modal
@@ -970,7 +1022,8 @@
             // Entrance Door is linked to Switch (0x05FD01) - both share the same toggle in controller.ts
             { key: 'door', eoj: '026f01', name: 'Entrance Door', linkedEojs: ['05fd01'] },
             { key: 'bath', eoj: '026b01', name: 'Bath Water Heater' },
-            { key: 'airConditioner', eoj: '013001', name: 'Air Conditioner' }
+            { key: 'airConditioner', eoj: '013001', name: 'Air Conditioner' },
+            { key: 'distributionPanelMeter', eoj: '05ff01', name: 'Distribution Panel Meter' }
         ];
 
         // Japanese names for device display in modal
@@ -984,7 +1037,8 @@
             {eoj:"026f01",name:"電気錠"},
             {eoj:"05fd01",name:"スイッチ"},
             {eoj:"026b01",name:"電気温水器"},
-            {eoj:"013001",name:"家庭用エアコン"}
+            {eoj:"013001",name:"家庭用エアコン"},
+            {eoj:"05ff01",name:"配電盤メータ"}
         ];
 
         // Debounce timers for sliders
@@ -1206,6 +1260,50 @@
             } catch (e) { console.error("Bath auto error:", e); }
         }
 
+        // Distribution Panel Meter
+        function updateDpmlLimitDisplay() {
+            const slider = document.getElementById('dpm-limit-slider');
+            document.getElementById('dpm-limit-slider-val').textContent = slider.value + '%';
+        }
+
+        async function setDpmlLimit(limit) {
+            try {
+                await fetch("/api/distributionPanelMeter", {
+                    method: "POST",
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ currentLimit: limit })
+                });
+                getStatus();
+            } catch (e) { console.error("DPM limit error:", e); }
+        }
+
+        async function toggleDpmlStatus() {
+            const newState = currentStatus.distributionPanelMeter.operationStatus === "on" ? "off" : "on";
+            await setDpmlOperationStatus(newState);
+        }
+
+        async function setDpmlOperationStatus(on) {
+            try {
+                await fetch("/api/distributionPanelMeter", {
+                    method: "POST",
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ operationStatus: on ? "on" : "off" })
+                });
+                getStatus();
+            } catch (e) { console.error("DPM status error:", e); }
+        }
+
+        // Debounce timer for DPM slider
+        let dpmLimitTimer = null;
+
+        function updateDpmlLimit() {
+            const slider = document.getElementById('dpm-limit-slider');
+            clearTimeout(dpmLimitTimer);
+            dpmLimitTimer = setTimeout(async () => {
+                await setDpmlLimit(parseInt(slider.value));
+            }, 300);
+        }
+
         // Device Toggle (enable/disable) - Now properly calls the API to disable instances
         async function toggleDevice(deviceKey, eojCode, enabled) {
             const card = document.getElementById('card-' + deviceKey);
@@ -1422,6 +1520,26 @@
             document.getElementById('bath-temp-slider-val').textContent = temp + '°C';
         }
 
+        function updateDpmlStatus() {
+            const operationStatus = currentStatus.distributionPanelMeter.operationStatus === "on" ? "ON" : "OFF";
+            const faultStatus = currentStatus.distributionPanelMeter.faultStatus === "faultOccurred" ? "FAULT" : "NO FAULT";
+            const powerConsumption = currentStatus.distributionPanelMeter.instantaneousPowerConsumption;
+            const energyConsumption = currentStatus.distributionPanelMeter.cumulativeElectricEnergy / 1000; // Convert from Wh to kWh
+            const currentLimit = currentStatus.distributionPanelMeter.currentLimit;
+
+            document.getElementById('dpm-status-display').textContent = operationStatus;
+            document.getElementById('dpm-fault-display').textContent = faultStatus;
+            document.getElementById('dpm-power-display').textContent = powerConsumption;
+            document.getElementById('dpm-energy-display').textContent = energyConsumption.toFixed(3);
+
+            // Update slider
+            const slider = document.getElementById('dpm-limit-slider');
+            if (document.activeElement !== slider) {
+                slider.value = currentLimit;
+            }
+            document.getElementById('dpm-limit-slider-val').textContent = currentLimit + '%';
+        }
+
         // ============================================================
         // Main Status Polling
         // ============================================================
@@ -1465,6 +1583,10 @@
                 if (status.bathWaterHeater || status.bath) {
                     currentStatus.bathWaterHeater = status.bathWaterHeater || status.bath;
                     updateBathStatus();
+                }
+                if (status.distributionPanelMeter) {
+                    currentStatus.distributionPanelMeter = status.distributionPanelMeter;
+                    updateDpmlStatus();
                 }
 
                 // Update connection indicator
