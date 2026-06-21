@@ -224,17 +224,17 @@ const App = {
 
     updateAllStatuses() {
         // Update all device statuses from their respective controllers
-        AirConditioner.updateStatus();
-        Lighting.updateCeilingLightStatus();
-        Lighting.updateFloorLightStatus();
-        Sensors.updateSensorStatus();
-        Sensors.updateMotionStatus();
-        Shutter.updateStatus();
-        Door.updateStatus();
-        BathWaterHeater.updateStatus();
-        DistributionPanelMeterController.updateStatus();
-        EvChargerDischarger.updateStatus();
-        SolarPowerGeneration.updateStatus();
+        try { AirConditioner.updateStatus(); } catch(e) { console.error('AC update error:', e); }
+        try { Lighting.updateCeilingLightStatus(); } catch(e) { console.error('Ceiling Light update error:', e); }
+        try { Lighting.updateFloorLightStatus(); } catch(e) { console.error('Floor Light update error:', e); }
+        try { Sensors.updateSensorStatus(); } catch(e) { console.error('Sensor update error:', e); }
+        try { Sensors.updateMotionStatus(); } catch(e) { console.error('Motion Sensor update error:', e); }
+        try { Shutter.updateStatus(); } catch(e) { console.error('Shutter update error:', e); }
+        try { Door.updateStatus(); } catch(e) { console.error('Door update error:', e); }
+        try { BathWaterHeater.updateStatus(); } catch(e) { console.error('Bath update error:', e); }
+        try { DistributionPanelMeterController.updateStatus(); } catch(e) { console.error('Distribution Panel update error:', e); }
+        try { EvChargerDischarger.updateStatus(); } catch(e) { console.error('EV Charger update error:', e); }
+        try { SolarPowerGeneration.updateStatus(); } catch(e) { console.error('Solar Power update error:', e); }
     },
 
     // ============================================================
