@@ -1008,7 +1008,8 @@
             shutter: { state: "closed", position: 0, move: "stopped" },
             door: { state: "closed", lockState: "unlocked" },
             bathWaterHeater: { state: "empty", auto: "off", temp: 40, waterLevel: 0, timerRunning: false },
-            distributionPanelMeter: { operationStatus: "on", faultStatus: "noFault", instantaneousPowerConsumption: 0, cumulativeElectricEnergy: 0, currentLimit: 100 }
+            distributionPanelMeter: { operationStatus: "on", faultStatus: "noFault", instantaneousPowerConsumption: 0, cumulativeElectricEnergy: 0, currentLimit: 100 },
+            evChargerDischarger: { state: "off", fault: false, instantaneousPower: 0, cumulativeEnergy: 0 }
         };
 
         // Device EOJ mapping for the device manager modal
@@ -1023,7 +1024,8 @@
             { key: 'door', eoj: '026f01', name: 'Entrance Door', linkedEojs: ['05fd01'] },
             { key: 'bath', eoj: '026b01', name: 'Bath Water Heater' },
             { key: 'airConditioner', eoj: '013001', name: 'Air Conditioner' },
-            { key: 'distributionPanelMeter', eoj: '05ff01', name: 'Distribution Panel Meter' }
+            { key: 'distributionPanelMeter', eoj: '05ff01', name: 'Distribution Panel Meter' },
+            { key: 'evChargerDischarger', eoj: '027b01', name: 'EV Charger Discharger' }
         ];
 
         // Japanese names for device display in modal
@@ -1038,7 +1040,8 @@
             {eoj:"05fd01",name:"スイッチ"},
             {eoj:"026b01",name:"電気温水器"},
             {eoj:"013001",name:"家庭用エアコン"},
-            {eoj:"05ff01",name:"配電盤メータ"}
+            {eoj:"05ff01",name:"配電盤メータ"},
+            {eoj:"027b01",name:"EV充電器・放電器"}
         ];
 
         // Debounce timers for sliders

@@ -45,6 +45,10 @@ export interface Settings {
       disabled?:boolean;
       id?: string;
     };
+    evChargerDischarger?:{
+      disabled?:boolean;
+      id?: string;
+    };
   }
   nodeProfileId?:string;
 }

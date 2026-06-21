@@ -15,6 +15,7 @@ import { DoorDevice, SwitchDevice } from "./devices/door";
 import { BathWaterHeaterDevice } from "./devices/bathWaterHeater";
 import { AirConditionerDevice } from "./devices/airConditioner";
 import { DistributionPanelMeterDevice } from "./devices/distributionPanelMeter";
+import { EvChargerDischargerDevice, EvChargerDischargerStatus } from "./devices/evChargerDischarger";
 
 // Re-export types for backward compatibility
 export type { EchoObject, EchoStatus, ILogger, SendPropertyChangedMethod } from "./types";
@@ -79,6 +80,7 @@ export class Controller {
   private bathWaterHeater: BathWaterHeaterDevice;
   private airConditioner: AirConditionerDevice;
   private distributionPanelMeter: DistributionPanelMeterDevice;
+  private evChargerDischarger: EvChargerDischargerDevice;
 
   constructor(logger: ILogger, settings: Settings) {
     this.logger = logger;
@@ -100,6 +102,7 @@ export class Controller {
     this.bathWaterHeater = new BathWaterHeaterDevice({ onPropertyChanged });
     this.airConditioner = new AirConditionerDevice({ onPropertyChanged });
     this.distributionPanelMeter = new DistributionPanelMeterDevice({ onPropertyChanged });
+    this.evChargerDischarger = new EvChargerDischargerDevice({ onPropertyChanged });
 
     // Apply settings
     this.ceilingLight.enabled = !(settings.devices?.monoFunctionalLighting?.disabled ?? false);
@@ -113,6 +116,7 @@ export class Controller {
     this.door.enabled = !(settings.devices?.electricLock?.disabled ?? false);
     this.switchDevice.enabled = !(settings.devices?.switch?.disabled ?? false);
     this.distributionPanelMeter.enabled = !(settings.devices?.distributionPanelMeter?.disabled ?? false);
+    this.evChargerDischarger.enabled = !(settings.devices?.evChargerDischarger?.disabled ?? false);
 
     // Set common properties
     this.setCommonProperties(this.ceilingLight.echoObject, settings.devices?.monoFunctionalLighting?.id ?? "");
@@ -126,6 +130,7 @@ export class Controller {
     this.setCommonProperties(this.bathWaterHeater.echoObject, settings.devices?.electricWaterHeater?.id ?? "");
     this.setCommonProperties(this.airConditioner.echoObject, settings.devices?.homeAirConditioner?.id ?? "");
     this.setCommonProperties(this.distributionPanelMeter.echoObject, settings.devices?.distributionPanelMeter?.id ?? "");
+    this.setCommonProperties(this.evChargerDischarger.echoObject, settings.devices?.evChargerDischarger?.id ?? "");
 
     // Start timer for animated devices
     setInterval(() => this.timer(), 1000);
@@ -136,7 +141,7 @@ export class Controller {
     eoj: string,
     propertyNo: string
   ): void => {
-    const enabledDevices = [this.ceilingLight, this.tempSensor, this.humSensor, this.motionSensor, this.floorLight, this.shutter, this.door, this.switchDevice, this.bathWaterHeater, this.airConditioner, this.distributionPanelMeter];
+    const enabledDevices = [this.ceilingLight, this.tempSensor, this.humSensor, this.motionSensor, this.floorLight, this.shutter, this.door, this.switchDevice, this.bathWaterHeater, this.airConditioner, this.distributionPanelMeter, this.evChargerDischarger];
     for (const device of enabledDevices) {
       if (device.enabled === false) continue;
 
@@ -472,6 +477,37 @@ export class Controller {
     return this.airConditioner.setStatusFromEchoNet(propertyCodeText, newValue);
   };
 
+  // === EV Charger Discharger ===
+  public getEvChargerDischargerStatus = (
+    req: express.Request,
+    res: express.Response
+  ): void => {
+    res.json(this.evChargerDischarger.status);
+  };
+
+  public setEvChargerDischargerStatus = (status: Partial<EvChargerDischargerStatus>): void => {
+    this.evChargerDischarger.setStatus(status);
+    this.logger.dir(this.evChargerDischarger.status, { depth: 3 });
+  };
+
+  public setEvChargerDischargerStatusFromRestApi = (
+    req: express.Request,
+    res: express.Response
+  ): void => {
+    this.setEvChargerDischargerStatus({
+      state: req.body.state,
+    });
+    res.json(this.evChargerDischarger.status);
+  };
+
+  public setEvChargerDischargerStatusFromEchoNet = (
+    echoObject: EchoObject,
+    propertyCodeText: string,
+    newValue: number[]
+  ): boolean => {
+    return this.evChargerDischarger.setStatusFromEchoNet(propertyCodeText, newValue);
+  };
+
   // === Status Aggregation ===
   public getStatus = (req: express.Request, res: express.Response): void => {
     const result = {
@@ -484,6 +520,7 @@ export class Controller {
       bath: this.bathWaterHeater.status,
       airConditioner: this.airConditioner.status,
       distributionPanelMeter: this.distributionPanelMeter.status,
+      evChargerDischarger: this.evChargerDischarger.status,
       echoObjects: [
         this.ceilingLight.echoStatus,
         this.tempSensor.echoStatus,
@@ -496,6 +533,7 @@ export class Controller {
         this.bathWaterHeater.echoStatus,
         this.airConditioner.echoStatus,
         this.distributionPanelMeter.echoStatus,
+        this.evChargerDischarger.echoStatus,
       ]
     };
     res.json(result);
@@ -620,6 +658,13 @@ export class Controller {
           newValue
         );
       }
+      if ("027b01" in echoObject) {
+        return this.setEvChargerDischargerStatusFromEchoNet(
+          echoObject,
+          propertyCodeText,
+          newValue
+        );
+      }
     }
     return false;
   };
@@ -644,6 +689,7 @@ export class Controller {
       this.bathWaterHeater.echoStatus,
       this.airConditioner.echoStatus,
       this.distributionPanelMeter.echoStatus,
+      this.evChargerDischarger.echoStatus,
     ];
   }
 
@@ -704,6 +750,8 @@ export class Controller {
       this.airConditioner.enabled = enabled;
     } else if (eojLower === "05ff01") {
       this.distributionPanelMeter.enabled = enabled;
+    } else if (eojLower === "027b01") {
+      this.evChargerDischarger.enabled = enabled;
     }
   }
 }
