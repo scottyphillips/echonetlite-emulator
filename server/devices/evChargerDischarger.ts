@@ -46,15 +46,15 @@ export class EvChargerDischargerDevice {
       0xDB: [0x00],                              // System interconnection type (0xDB): 0x0=Grid connection (reverse flow acceptable), 0x1=Independent operation, 0x2=Grid connection (reverse flow not acceptable) (required, GET)
       0xDC: [0x01],                              // Charging method (0xDC): 0x0=Others, 0x1=Max charging power, 0x2=Surplus power, 0x3=Designated power, 0x4=Designated current, 0x5=Designated purchasing power (required, GET/SET)
       0xDD: [0x02],                              // Discharging method (0xDD): 0x0=Others, 0x1=Max discharging power, 0x2=Load-following, 0x3=Designated power, 0x4=Designated current, 0x5=Designated purchasing power (required, GET/SET)
-      0xE1: [0x44],                              // Actual operation mode (0xE1): 0x42=Charge, 0x43=Discharge, 0x44=Standby, 0x47=Idle, 0x48=Preparation, 0x40=Other (required, GET)
-      0xE5: [0x42],                              // Maintenance status (0xE5): 0x41=Maintenance needed, 0x42=Normal (required, GET)
+      // 0xE1: [0x44],                              // Actual operation mode (0xE1): 0x42=Charge, 0x43=Discharge, 0x44=Standby, 0x47=Idle, 0x48=Preparation, 0x40=Other (required, GET)
+      //  0xE5: [0x42],                              // Maintenance status (0xE5): 0x41=Maintenance needed, 0x42=Normal (required, GET)
       
       // Optional EPCs with test data
       // 0x84: [0x00, 0x00],                        // Measured instantaneous power consumption (0x84): uint16, watts (currently 0W)
       // 0x85: [0x00, 0x00, 0x00, 0x00],            // Measured cumulative electric energy consumption (0x85): uint32, 0.001kWh increments
       
       // Property maps
-      "9d": [0x09, 0x80, 0x81, 0x84, 0x85, 0x88, 0xC7, 0xDA, 0xDB, 0xDC], // Status change announcement property map (STATMAP)
+      "9d": [0x09, 0x80, 0x81, 0x88, 0xC7, 0xDA, 0xDB, 0xDC], // Status change announcement property map (STATMAP)
       "9e": [0x04, 0x80, 0x81, 0xDA, 0xDC],     // Set property map (SETMAP): 0x80, 0x81, 0xDA, 0xDC are settable
       // "9f": [0x0B, 0x80, 0x81, 0x84, 0x85, 0x88, 0xC7, 0xDA, 0xDB, 0xDC, 0xDD, 0xE1, 0xE5], // Get property map (GETMAP)
     },
