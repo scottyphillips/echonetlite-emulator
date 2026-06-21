@@ -42,12 +42,12 @@ export class EvChargerDischargerDevice {
       "81": [0x01],                              // Installation location (0x81): 0x01=Outdoor (required, GET/SET)
       "88": [0x42],                              // Fault status (0x88): 0x41=Fault occurred, 0x42=No fault (required, GET)
       "c7": [0x43],                              // Vehicle connection and chargeable/dischargeable status (0xC7): 0x30=Not Connected, 0x40=Connected, 0x41=Chargeable, 0x42=Dischargeable, 0x43=Chargeable+Dischargeable (required, GET)
-      "DA": [0x42],                              // Operation mode setting (0xDA): 0x41=Rapid charge, 0x42=Charge, 0x43=Discharge, 0x44=Standby, 0x45=Test, 0x40=Other (required, GET/SET)
-      "DB": [0x00],                              // System interconnection type (0xDB): 0x0=Grid connection (reverse flow acceptable), 0x1=Independent operation, 0x2=Grid connection (reverse flow not acceptable) (required, GET)
-      "DC": [0x01],                              // Charging method (0xDC): 0x0=Others, 0x1=Max charging power, 0x2=Surplus power, 0x3=Designated power, 0x4=Designated current, 0x5=Designated purchasing power (required, GET/SET)
-      "DD": [0x02],                              // Discharging method (0xDD): 0x0=Others, 0x1=Max discharging power, 0x2=Load-following, 0x3=Designated power, 0x4=Designated current, 0x5=Designated purchasing power (required, GET/SET)
-      "E1": [0x44],                              // Actual operation mode (0xE1): 0x42=Charge, 0x43=Discharge, 0x44=Standby, 0x47=Idle, 0x48=Preparation, 0x40=Other (required, GET)
-      "E5": [0x42],                              // Maintenance status (0xE5): 0x41=Maintenance needed, 0x42=Normal (required, GET)
+      "da": [0x42],                              // Operation mode setting (0xDA): 0x41=Rapid charge, 0x42=Charge, 0x43=Discharge, 0x44=Standby, 0x45=Test, 0x40=Other (required, GET/SET)
+      "db": [0x00],                              // System interconnection type (0xDB): 0x0=Grid connection (reverse flow acceptable), 0x1=Independent operation, 0x2=Grid connection (reverse flow not acceptable) (required, GET)
+      "dc": [0x01],                              // Charging method (0xDC): 0x0=Others, 0x1=Max charging power, 0x2=Surplus power, 0x3=Designated power, 0x4=Designated current, 0x5=Designated purchasing power (required, GET/SET)
+      "dd": [0x02],                              // Discharging method (0xDD): 0x0=Others, 0x1=Max discharging power, 0x2=Load-following, 0x3=Designated power, 0x4=Designated current, 0x5=Designated purchasing power (required, GET/SET)
+      "e1": [0x44],                              // Actual operation mode (0xE1): 0x42=Charge, 0x43=Discharge, 0x44=Standby, 0x47=Idle, 0x48=Preparation, 0x40=Other (required, GET)
+      "e5": [0x42],                              // Maintenance status (0xE5): 0x41=Maintenance needed, 0x42=Normal (required, GET)
       
       // Optional EPCs with test data
       "84": [0x00, 0x00],                        // Measured instantaneous power consumption (0x84): uint16, watts (currently 0W)
