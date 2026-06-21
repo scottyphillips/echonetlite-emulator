@@ -50,8 +50,8 @@ export class EvChargerDischargerDevice {
       0xE5: [0x42],                              // Maintenance status (0xE5): 0x41=Maintenance needed, 0x42=Normal (required, GET)
       
       // Optional EPCs with test data
-      0x84: [0x00, 0x00],                        // Measured instantaneous power consumption (0x84): uint16, watts (currently 0W)
-      0x85: [0x00, 0x00, 0x00, 0x00],            // Measured cumulative electric energy consumption (0x85): uint32, 0.001kWh increments
+      // 0x84: [0x00, 0x00],                        // Measured instantaneous power consumption (0x84): uint16, watts (currently 0W)
+      // 0x85: [0x00, 0x00, 0x00, 0x00],            // Measured cumulative electric energy consumption (0x85): uint32, 0.001kWh increments
       
       // Property maps
       "9d": [0x09, 0x80, 0x81, 0x84, 0x85, 0x88, 0xC7, 0xDA, 0xDB, 0xDC], // Status change announcement property map (STATMAP)
