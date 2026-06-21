@@ -105,33 +105,33 @@ export class DistributionPanelMeterControllerDevice implements IBaseDevice {
       }
     }
 
-    if (newStatus.instantaneousPowerConsumption !== undefined) {
-      const value = Math.max(0, Math.min(65533, newStatus.instantaneousPowerConsumption));
-      if (this._status.instantaneousPowerConsumption !== value) {
-        this._status.instantaneousPowerConsumption = value;
-        this._echoObject["05ff01"]["84"] = [
-          (value >> 8) & 0xff,
-          value & 0xff,
-        ];
-        this.notifyPropertyChanged("84");
-        changed = true;
-      }
-    }
+    // if (newStatus.instantaneousPowerConsumption !== undefined) {
+    //   const value = Math.max(0, Math.min(65533, newStatus.instantaneousPowerConsumption));
+    //   if (this._status.instantaneousPowerConsumption !== value) {
+    //     this._status.instantaneousPowerConsumption = value;
+    //     this._echoObject["05ff01"]["84"] = [
+    //       (value >> 8) & 0xff,
+    //       value & 0xff,
+    //     ];
+    //     this.notifyPropertyChanged("84");
+    //     changed = true;
+    //   }
+    // }
 
-    if (newStatus.cumulativeElectricEnergy !== undefined) {
-      const value = Math.max(0, Math.min(999999999, newStatus.cumulativeElectricEnergy));
-      if (this._status.cumulativeElectricEnergy !== value) {
-        this._status.cumulativeElectricEnergy = value;
-        this._echoObject["05ff01"]["85"] = [
-          (value >> 24) & 0xff,
-          (value >> 16) & 0xff,
-          (value >> 8) & 0xff,
-          value & 0xff,
-        ];
-        this.notifyPropertyChanged("85");
-        changed = true;
-      }
-    }
+    // if (newStatus.cumulativeElectricEnergy !== undefined) {
+    //   const value = Math.max(0, Math.min(999999999, newStatus.cumulativeElectricEnergy));
+    //   if (this._status.cumulativeElectricEnergy !== value) {
+    //     this._status.cumulativeElectricEnergy = value;
+    //     this._echoObject["05ff01"]["85"] = [
+    //       (value >> 24) & 0xff,
+    //       (value >> 16) & 0xff,
+    //       (value >> 8) & 0xff,
+    //       value & 0xff,
+    //     ];
+    //     this.notifyPropertyChanged("85");
+    //     changed = true;
+    //   }
+    // }
 
     if (newStatus.currentLimit !== undefined) {
       const value = Math.max(0, Math.min(100, newStatus.currentLimit));
@@ -193,7 +193,7 @@ export class DistributionPanelMeterControllerDevice implements IBaseDevice {
       case "99": // Power limit setting
         if (newValue.length >= 2) {
           const value = (newValue[0] << 8) | newValue[1];
-          this.setStatus({ instantaneousPowerConsumption: value });
+          // this.setStatus({ instantaneousPowerConsumption: value });
           return true;
         }
         break;
@@ -215,16 +215,16 @@ export class DistributionPanelMeterControllerDevice implements IBaseDevice {
   /**
    * Update power consumption value from ECHONET notification.
    */
-  updatePowerConsumption(watts: number): void {
-    this.setStatus({ instantaneousPowerConsumption: watts });
-  }
+  // updatePowerConsumption(watts: number): void {
+  //   this.setStatus({ instantaneousPowerConsumption: watts });
+  // }
 
   /**
    * Update cumulative energy consumption (in kWh).
    */
-  updateEnergyConsumption(kwh: number): void {
-    this.setStatus({ cumulativeElectricEnergy: kwh });
-  }
+  // updateEnergyConsumption(kwh: number): void {
+  //   this.setStatus({ cumulativeElectricEnergy: kwh });
+  // }
 
   /**
    * Simulate a fault condition.
