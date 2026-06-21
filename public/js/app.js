@@ -81,65 +81,24 @@ const App = {
         }
     },
 
-    // Device Toggle (enable/disable) - Now properly calls the API to disable instances
-    async toggleDevice(deviceKey, eojCode, enabled) {
+    // Device Toggle (show/hide card) - Controls card visibility, not device enabled state
+    async toggleDevice(deviceKey, eojCode, visible) {
         const card = document.getElementById('card-' + deviceKey);
         if (card) {
-            card.classList.toggle('disabled', !enabled);
+            card.style.display = visible ? 'block' : 'none';
         }
-        // Send the change to the server via API
-        await this.saveDeviceSettings();
     },
 
-    // Save device settings (used by both card toggles and modal)
+    // Save visibility settings from modal (apply card visibility to match modal toggles)
     async saveDeviceSettings() {
-        const echoObjects = [];
-        
-        // Track which EOJs have been processed to avoid duplicates
-        const processedEojs = new Set();
-        
-        // Collect current state from all device cards
+        // Update card visibility based on modal toggle states
         for (const device of this.deviceEojMap) {
+            const modalToggle = document.getElementById('modal-toggle-' + device.eoj);
             const card = document.getElementById('card-' + device.key);
-            const toggle = card?.querySelector('.card-toggle input');
-            const enabled = toggle ? toggle.checked : true;
-            
-            // Add the primary EOJ
-            echoObjects.push({
-                eoj: device.eoj,
-                enabled: enabled
-            });
-            processedEojs.add(device.eoj.toLowerCase());
-            
-            // Add any linked EOJs with the same enabled state (e.g., Door + Switch)
-            if (device.linkedEojs) {
-                for (const linkedEoj of device.linkedEojs) {
-                    if (!processedEojs.has(linkedEoj.toLowerCase())) {
-                        echoObjects.push({
-                            eoj: linkedEoj,
-                            enabled: enabled
-                        });
-                        processedEojs.add(linkedEoj.toLowerCase());
-                    }
-                }
+            if (modalToggle && card) {
+                const visible = modalToggle.checked;
+                card.style.display = visible ? 'block' : 'none';
             }
-        }
-
-        try {
-            const res = await fetch("/api/commands/changedevices", {
-                method: "POST",
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(echoObjects)
-            });
-            
-            if (res.ok) {
-                BaseDevice.showMessage('Devices updated successfully', 'success');
-            } else {
-                BaseDevice.showMessage('Failed to update devices', 'error');
-            }
-        } catch (e) {
-            console.error("Save device settings error:", e);
-            BaseDevice.showMessage('Error saving device settings', 'error');
         }
 
         // Close modal if open
@@ -154,9 +113,11 @@ const App = {
         const container = document.getElementById('deviceListContainer');
         container.innerHTML = '';
         
-        // Build device list from the API status data
+        // Build device list showing current card visibility state
         for (const device of this.deviceEojMap) {
             const japaneseName = this.eojNameMap.find(_ => _.eoj === device.eoj)?.name ?? device.name;
+            const card = document.getElementById('card-' + device.key);
+            const isVisible = card ? card.style.display !== 'none' : true;
             
             const item = document.createElement('div');
             item.className = 'device-list-item';
@@ -168,7 +129,7 @@ const App = {
                     </div>
                 </div>
                 <label class="card-toggle">
-                    <input type="checkbox" id="modal-toggle-${device.eoj}" ${this.tempDeviceStates[device.eoj] ?? true}>
+                    <input type="checkbox" id="modal-toggle-${device.eoj}" ${isVisible ? 'checked' : ''}>
                     <span class="toggle-slider"></span>
                 </label>
             `;
@@ -257,26 +218,6 @@ const App = {
             document.getElementById('connectionDot').style.backgroundColor = 'var(--accent-green)';
             document.getElementById('connectionStatus').textContent = 'Connected';
 
-            // Update device toggle states based on enabled property from API
-            if (status.echoObjects) {
-                for (const echoObj of status.echoObjects) {
-                    const enabled = echoObj.enabled;
-                    const eoj = echoObj.eoj;
-                    
-                    // Find the corresponding card and toggle
-                    const device = this.deviceEojMap.find(d => d.eoj === eoj);
-                    if (device) {
-                        const card = document.getElementById('card-' + device.key);
-                        const toggle = card?.querySelector('.card-toggle input');
-                        
-                        if (toggle && toggle.checked !== enabled) {
-                            toggle.checked = enabled;
-                            card?.classList.toggle('disabled', !enabled);
-                        }
-                    }
-                }
-            }
-
             // Update all UI statuses
             this.updateAllStatuses();
 
@@ -292,6 +233,14 @@ const App = {
     // ============================================================
 
     init() {
+        // Hide all device cards by default (all instances disabled)
+        for (const device of this.deviceEojMap) {
+            const card = document.getElementById('card-' + device.key);
+            if (card) {
+                card.style.display = 'none';
+            }
+        }
+        
         // Initial status load
         this.getStatus();
         
