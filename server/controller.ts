@@ -659,11 +659,51 @@ export class Controller {
       return;
     }
     if (command === "changedevices") {
-      const option = req.body as { eoj: string, enabled: boolean }[]
+      const option = req.body as { eoj: string, enabled: boolean }[];
+      
+      // Update device enabled states based on the request
+      for (const device of option) {
+        this.updateDeviceEnabledFromApi(device.eoj, device.enabled);
+      }
+      
       this.sendCommandCallback(command, option);
       res.json({ result: "ok" });
       return;
     }
     res.status(400).send("Invalid Command");
   };
+
+  /**
+   * Update device enabled state from REST API.
+   * This allows the UI toggles to actually enable/disable devices on the server side.
+   */
+  private updateDeviceEnabledFromApi(eoj: string, enabled: boolean): void {
+    const eojLower = eoj.toLowerCase();
+    
+    if (eojLower === "026b01") {
+      // Bath Water Heater
+      this.bathWaterHeater.enabled = enabled;
+      console.log(`[Controller] BathWaterHeater enabled: ${enabled}`);
+    } else if (eojLower === "029101") {
+      this.ceilingLight.enabled = enabled;
+    } else if (eojLower === "001101") {
+      this.tempSensor.enabled = enabled;
+    } else if (eojLower === "001201") {
+      this.humSensor.enabled = enabled;
+    } else if (eojLower === "000701") {
+      this.motionSensor.enabled = enabled;
+    } else if (eojLower === "029001") {
+      this.floorLight.enabled = enabled;
+    } else if (eojLower === "026301") {
+      this.shutter.enabled = enabled;
+    } else if (eojLower === "026f01" || eojLower === "05fd01") {
+      // Door and Switch share the same toggle
+      this.door.enabled = enabled;
+      this.switchDevice.enabled = enabled;
+    } else if (eojLower === "013001") {
+      this.airConditioner.enabled = enabled;
+    } else if (eojLower === "05ff01") {
+      this.distributionPanelMeter.enabled = enabled;
+    }
+  }
 }
