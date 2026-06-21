@@ -8,11 +8,11 @@ const Sensors = {
 
     // Temperature Sensor Methods
     updateTempDisplay() {
-        const slider = document.getElementById('temp-slider');
-        document.getElementById('temp-slider-val').textContent = parseFloat(slider.value).toFixed(1) + '°C';
+        BaseDevice.updateSliderDisplay('temp-slider', 'temp-slider-val', '°C');
         
         this.debounceTimer = BaseDevice.createDebounce(300, async () => {
             try {
+                const slider = document.getElementById('temp-slider');
                 await fetch("/api/sensorMeter", {
                     method: "POST",
                     headers: { 'Content-Type': 'application/json' },
@@ -28,11 +28,11 @@ const Sensors = {
 
     // Humidity Sensor Methods
     updateHumDisplay() {
-        const slider = document.getElementById('hum-slider');
-        document.getElementById('hum-slider-val').textContent = slider.value + '%';
+        BaseDevice.updateSliderDisplay('hum-slider', 'hum-slider-val', '%');
         
         this.debounceTimer = BaseDevice.createDebounce(300, async () => {
             try {
+                const slider = document.getElementById('hum-slider');
                 await fetch("/api/sensorMeter", {
                     method: "POST",
                     headers: { 'Content-Type': 'application/json' },
