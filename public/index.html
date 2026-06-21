@@ -973,6 +973,49 @@
                 </div>
             </div>
 
+            <!-- EV Charger Discharger Card -->
+            <div class="device-card" id="card-evChargerDischarger">
+                <div class="card-header">
+                    <div class="card-header-left">
+                        <div class="device-icon sensor">&#9881;</div>
+                        <div>
+                            <div class="device-name">EV Charger Discharger</div>
+                            <div class="device-eoj">EOJ: 027B01 - EV Charger/Discharger</div>
+                        </div>
+                    </div>
+                    <label class="card-toggle">
+                        <input type="checkbox" checked onchange="toggleDevice('evChargerDischarger', '027b01', this.checked)">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="card-body">
+                    <div class="status-grid">
+                        <div class="status-item">
+                            <div class="status-label">Operation Status</div>
+                            <div class="status-value" id="evc-status-display">--</div>
+                        </div>
+                        <div class="status-item">
+                            <div class="status-label">Fault Status</div>
+                            <div class="status-value" id="evc-fault-display">--</div>
+                        </div>
+                        <div class="status-item">
+                            <div class="status-label">Power</div>
+                            <div class="status-value"><span id="evc-power-display">0</span><span class="unit">W</span></div>
+                        </div>
+                        <div class="status-item">
+                            <div class="status-label">Energy</div>
+                            <div class="status-value"><span id="evc-energy-display">0.000</span><span class="unit">kWh</span></div>
+                        </div>
+                    </div>
+                    <div class="control-section">
+                        <div class="action-buttons">
+                            <button class="action-btn" onclick="setEvChargerState('on')">CHARGE ON</button>
+                            <button class="action-btn danger" onclick="setEvChargerState('off')">CHARGE OFF</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 
@@ -1261,6 +1304,30 @@
                 });
                 getStatus();
             } catch (e) { console.error("Bath auto error:", e); }
+        }
+
+        // EV Charger Discharger
+        async function setEvChargerState(on) {
+            try {
+                await fetch("/api/evChargerDischarger", {
+                    method: "POST",
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ state: on ? "on" : "off" })
+                });
+                getStatus();
+            } catch (e) { console.error("EV Charger error:", e); }
+        }
+
+        function updateEvcChargerStatus() {
+            const state = currentStatus.evChargerDischarger.state;
+            const fault = currentStatus.evChargerDischarger.fault;
+            const power = currentStatus.evChargerDischarger.instantaneousPower;
+            const energy = currentStatus.evChargerDischarger.cumulativeEnergy / 1000;
+
+            document.getElementById('evc-status-display').textContent = state.toUpperCase();
+            document.getElementById('evc-fault-display').textContent = fault ? "FAULT" : "OK";
+            document.getElementById('evc-power-display').textContent = power;
+            document.getElementById('evc-energy-display').textContent = energy.toFixed(3);
         }
 
         // Distribution Panel Meter
@@ -1610,6 +1677,10 @@
                 if (status.distributionPanelMeter) {
                     currentStatus.distributionPanelMeter = status.distributionPanelMeter;
                     updateDpmlStatus();
+                }
+                if (status.evChargerDischarger) {
+                    currentStatus.evChargerDischarger = status.evChargerDischarger;
+                    updateEvcChargerStatus();
                 }
 
                 // Update connection indicator
