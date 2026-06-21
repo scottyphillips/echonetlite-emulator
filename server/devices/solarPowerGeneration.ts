@@ -55,7 +55,7 @@ export class SolarPowerGenerationDevice {
       
       // User-specified notification map EPCs
       "e0": [0x0c, 0xb8],                        // Measured instantaneous amount of electricity generated (0xe0): uint16, watts (3250W)
-      "e1": [0x00, 0x00, 0x03, 0xfa],            // Measured cumulative amount of electric energy generated (0xe1): uint32, 0.001kWh (15420 * 0.001 = 15.42 kWh)
+      "e1": [0x00, 0x00, 0x3C, 0x6C],            // Measured cumulative amount of electric energy generated (0xe1): uint32, 0.001kWh (15420 * 0.001 = 15.42 kWh)
       "e3": [0x00, 0x00, 0x02, 0x62],            // Measured cumulative amount of electric energy sold (0xe3): uint32, 0.001kWh (8750 * 0.001 = 8.75 kWh)
       "e8": [0x13, 0x88],                        // Rated power generation output - System-interconnected (0xe8): uint16, watts (5000W)
       
