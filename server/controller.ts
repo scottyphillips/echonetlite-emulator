@@ -520,6 +520,40 @@ export class Controller {
       }
     }
     
+    // Handle charging method (0xDC) from REST API
+    if (req.body.chargingMethod !== undefined) {
+      const chargingMethodMap: Record<string, EvChargerDischargerStatus["chargingMethod"]> = {
+        "others": "others",
+        "maxChargingPower": "maxChargingPower",
+        "surplusPower": "surplusPower",
+        "designatedPower": "designatedPower",
+        "designatedCurrent": "designatedCurrent",
+        "designatedPurchasingPower": "designatedPurchasingPower"
+      };
+      if (chargingMethodMap[req.body.chargingMethod]) {
+        this.setEvChargerDischargerStatus({ 
+          chargingMethod: chargingMethodMap[req.body.chargingMethod]
+        });
+      }
+    }
+    
+    // Handle discharging method (0xDD) from REST API
+    if (req.body.dischargingMethod !== undefined) {
+      const dischargingMethodMap: Record<string, EvChargerDischargerStatus["dischargingMethod"]> = {
+        "others": "others",
+        "maxDischargingPower": "maxDischargingPower",
+        "loadFollowing": "loadFollowing",
+        "designatedPower": "designatedPower",
+        "designatedCurrent": "designatedCurrent",
+        "designatedPurchasingPower": "designatedPurchasingPower"
+      };
+      if (dischargingMethodMap[req.body.dischargingMethod]) {
+        this.setEvChargerDischargerStatus({ 
+          dischargingMethod: dischargingMethodMap[req.body.dischargingMethod]
+        });
+      }
+    }
+    
     res.json(this.evChargerDischarger.status);
   };
 
