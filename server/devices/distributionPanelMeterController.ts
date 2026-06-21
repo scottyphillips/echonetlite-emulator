@@ -144,7 +144,7 @@ export class DistributionPanelMeterControllerDevice implements IBaseDevice {
 
     if (changed) {
       // Notify all properties after status change
-      const properties = ["80", "84", "85", "87", "88", "89", "8F", "99", "9A"];
+      const properties = ["80", "84", "85", "87", "88", "89", "8f", "99", "9a"];
       for (const prop of properties) {
         this.notifyPropertyChanged(prop);
       }
