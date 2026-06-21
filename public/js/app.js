@@ -314,12 +314,16 @@ const App = {
     // ============================================================
 
     init() {
-        // Initialize card visibility state (all visible by default)
+        // Hide all cards by default (all instances disabled)
         for (const device of this.deviceEojMap) {
-            this.cardVisibility[device.key] = true;
+            this.cardVisibility[device.key] = false;
+            const card = document.getElementById('card-' + device.key);
+            if (card) {
+                card.style.display = 'none';
+            }
         }
         
-        // Initial status load
+        // Initial status load - this will sync toggle states from server
         this.getStatus();
         
         // Start polling
