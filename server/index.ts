@@ -508,6 +508,9 @@ app.post("/api/distributionPanelMeterController", controller.setDistributionPane
 app.get("/api/evChargerDischarger", controller.getEvChargerDischargerStatus);
 app.post("/api/evChargerDischarger", controller.setEvChargerDischargerStatusFromRestApi);
 
+app.get("/api/solarPowerGeneration", controller.getSolarPowerGenerationStatus);
+app.post("/api/solarPowerGeneration", controller.setSolarPowerGenerationStatusFromRestApi);
+
 app.post("/api/commands/:command", controller.postCommandsFromRestApi);
 
 const server = app.listen(webPort, function () {

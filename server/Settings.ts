@@ -49,6 +49,10 @@ export interface Settings {
       disabled?:boolean;
       id?: string;
     };
+    solarPowerGeneration?:{
+      disabled?:boolean;
+      id?: string;
+    };
   }
   nodeProfileId?:string;
 }

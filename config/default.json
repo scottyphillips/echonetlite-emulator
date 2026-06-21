@@ -58,6 +58,10 @@
     "evChargerDischarger": {
       "disabled": true,
       "id": ""
+    },
+    "solarPowerGeneration": {
+      "disabled": true,
+      "id": ""
     }
   }
 }

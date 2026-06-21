@@ -20,7 +20,8 @@ const App = {
         { key: 'bath', eoj: '026b01', name: 'Bath Water Heater' },
         { key: 'airConditioner', eoj: '013001', name: 'Air Conditioner' },
         { key: 'distributionPanelMeterController', eoj: '05ff01', name: 'Distribution Panel Meter Controller' },
-        { key: 'evChargerDischarger', eoj: '027e01', name: 'EV Charger Discharger' }
+        { key: 'evChargerDischarger', eoj: '027e01', name: 'EV Charger Discharger' },
+        { key: 'solarPowerGeneration', eoj: '027901', name: 'Solar Power Generation' }
     ],
 
     // Japanese names for device display in modal
@@ -36,7 +37,8 @@ const App = {
         {eoj:"026b01",name:"電気温水器"},
         {eoj:"013001",name:"家庭用エアコン"},
         {eoj:"05ff01",name:"配電盤メータ"},
-        {eoj:"027e01",name:"EV充電器・放電器"}
+        {eoj:"027e01",name:"EV充電器・放電器"},
+        {eoj:"027901",name:"太陽光発電機"}
     ],
 
     // Current status state
@@ -63,6 +65,18 @@ const App = {
             maintenanceStatus: "normal",
             instantaneousPowerConsumption: 0,
             cumulativeElectricEnergyConsumption: 0
+        },
+        solarPowerGeneration: { 
+            operationStatus: "off",
+            installationLocation: "Outdoor",
+            faultStatus: "noFault",
+            faultDescription: 0,
+            instantaneousElectricPowerGeneration: 0,
+            cumulativeElectricEnergyOfGeneration: 0,
+            cumulativeElectricEnergySold: 0,
+            ratedElectricPowerOfgeneration: 5000,
+            systemInterconnectionType: "gridConnectionReverseFlowAcceptable",
+            outputPowerRestraintStatus: "notRestraining"
         }
     },
 
@@ -220,6 +234,7 @@ const App = {
         BathWaterHeater.updateStatus();
         DistributionPanelMeterController.updateStatus();
         EvChargerDischarger.updateStatus();
+        SolarPowerGeneration.updateStatus();
     },
 
     // ============================================================
@@ -273,6 +288,10 @@ const App = {
             if (status.evChargerDischarger) {
                 this.currentStatus.evChargerDischarger = status.evChargerDischarger;
                 EvChargerDischarger.state = status.evChargerDischarger;
+            }
+            if (status.solarPowerGeneration) {
+                this.currentStatus.solarPowerGeneration = status.solarPowerGeneration;
+                SolarPowerGeneration.state = status.solarPowerGeneration;
             }
 
             // Update connection indicator
@@ -368,6 +387,9 @@ window.updateDpmlLimit = () => DistributionPanelMeterController.updateDpmlLimit(
 
 window.setEvChargerMode = (mode) => EvChargerDischarger.setEvChargerMode(mode);
 window.setEvChargerMethod = (method) => EvChargerDischarger.setEvChargerMethod(method);
+
+window.setSolarOperationStatus = (on) => SolarPowerGeneration.setSolarOperationStatus(on);
+window.setSolarPowerGeneration = (power) => SolarPowerGeneration.setSolarPowerGeneration(power);
 
 // Initialize app when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
