@@ -69,6 +69,9 @@ const App = {
     // Temporary device states for modal editing
     tempDeviceStates: {},
 
+    // Card visibility state (separate from device enabled state) - controlled by Manage Devices menu
+    cardVisibility: {},
+
     // ============================================================
     // API Functions
     // ============================================================
@@ -81,32 +84,72 @@ const App = {
         }
     },
 
-    // Device Toggle (show/hide card) - Controls card visibility, not device enabled state
-    async toggleDevice(deviceKey, eojCode, visible) {
+    // Card Toggle - Enables/disables device on server via API
+    async toggleDevice(deviceKey, eojCode, enabled) {
+        // Update card visual state
         const card = document.getElementById('card-' + deviceKey);
         if (card) {
-            card.style.display = visible ? 'block' : 'none';
+            card.classList.toggle('disabled', !enabled);
         }
+        
+        // Send the change to the server via API
+        await this.saveDeviceSettings();
     },
 
-    // Save visibility settings from modal (apply card visibility to match modal toggles)
+    // Save device settings - sends enabled state of all devices to server
     async saveDeviceSettings() {
-        // Update card visibility based on modal toggle states
+        const echoObjects = [];
+        
+        // Track which EOJs have been processed to avoid duplicates
+        const processedEojs = new Set();
+        
+        // Collect current state from all device cards
         for (const device of this.deviceEojMap) {
-            const modalToggle = document.getElementById('modal-toggle-' + device.eoj);
             const card = document.getElementById('card-' + device.key);
-            if (modalToggle && card) {
-                const visible = modalToggle.checked;
-                card.style.display = visible ? 'block' : 'none';
+            const toggle = card?.querySelector('.card-toggle input');
+            const enabled = toggle ? toggle.checked : true;
+            
+            // Add the primary EOJ
+            echoObjects.push({
+                eoj: device.eoj,
+                enabled: enabled
+            });
+            processedEojs.add(device.eoj.toLowerCase());
+            
+            // Add any linked EOJs with the same enabled state (e.g., Door + Switch)
+            if (device.linkedEojs) {
+                for (const linkedEoj of device.linkedEojs) {
+                    if (!processedEojs.has(linkedEoj.toLowerCase())) {
+                        echoObjects.push({
+                            eoj: linkedEoj,
+                            enabled: enabled
+                        });
+                        processedEojs.add(linkedEoj.toLowerCase());
+                    }
+                }
             }
         }
 
-        // Close modal if open
-        this.closeDeviceManager();
+        try {
+            const res = await fetch("/api/commands/changedevices", {
+                method: "POST",
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(echoObjects)
+            });
+            
+            if (res.ok) {
+                BaseDevice.showMessage('Devices updated successfully', 'success');
+            } else {
+                BaseDevice.showMessage('Failed to update devices', 'error');
+            }
+        } catch (e) {
+            console.error("Save device settings error:", e);
+            BaseDevice.showMessage('Error saving device settings', 'error');
+        }
     },
 
     // ============================================================
-    // Device Manager Modal Functions
+    // Device Manager Modal Functions (controls card visibility only)
     // ============================================================
 
     openDeviceManager() {
@@ -116,8 +159,7 @@ const App = {
         // Build device list showing current card visibility state
         for (const device of this.deviceEojMap) {
             const japaneseName = this.eojNameMap.find(_ => _.eoj === device.eoj)?.name ?? device.name;
-            const card = document.getElementById('card-' + device.key);
-            const isVisible = card ? card.style.display !== 'none' : true;
+            const isVisible = this.cardVisibility[device.key] !== false; // default to visible
             
             const item = document.createElement('div');
             item.className = 'device-list-item';
@@ -129,7 +171,7 @@ const App = {
                     </div>
                 </div>
                 <label class="card-toggle">
-                    <input type="checkbox" id="modal-toggle-${device.eoj}" ${isVisible ? 'checked' : ''}>
+                    <input type="checkbox" id="modal-toggle-${device.eoj}" ${isVisible ? 'checked' : ''} onchange="handleModalToggleChange('${device.eoj}', this.checked)">
                     <span class="toggle-slider"></span>
                 </label>
             `;
@@ -141,6 +183,25 @@ const App = {
 
     closeDeviceManager() {
         document.getElementById('deviceManagerModal').classList.remove('active');
+    },
+
+    // Handle modal toggle change - updates card visibility immediately
+    handleModalToggleChange(eoj, checked) {
+        // Find the device key for this EOJ
+        const device = App.deviceEojMap.find(d => d.eoj === eoj);
+        if (device) {
+            App.toggleCardVisibility(device.key, checked);
+        }
+    },
+
+    // Show/hide a single card
+    toggleCardVisibility(deviceKey, visible) {
+        const card = document.getElementById('card-' + deviceKey);
+        if (card) {
+            card.style.display = visible ? 'block' : 'none';
+            // Track visibility state
+            App.cardVisibility[deviceKey] = visible;
+        }
     },
 
     // ============================================================
@@ -218,6 +279,26 @@ const App = {
             document.getElementById('connectionDot').style.backgroundColor = 'var(--accent-green)';
             document.getElementById('connectionStatus').textContent = 'Connected';
 
+            // Sync card toggle states with server's enabled property
+            if (status.echoObjects) {
+                for (const echoObj of status.echoObjects) {
+                    const enabled = echoObj.enabled;
+                    const eoj = echoObj.eoj;
+                    
+                    // Find the corresponding card and toggle
+                    const device = this.deviceEojMap.find(d => d.eoj === eoj);
+                    if (device) {
+                        const card = document.getElementById('card-' + device.key);
+                        const toggle = card?.querySelector('.card-toggle input');
+                        
+                        if (toggle && toggle.checked !== enabled) {
+                            toggle.checked = enabled;
+                            card?.classList.toggle('disabled', !enabled);
+                        }
+                    }
+                }
+            }
+
             // Update all UI statuses
             this.updateAllStatuses();
 
@@ -233,12 +314,9 @@ const App = {
     // ============================================================
 
     init() {
-        // Hide all device cards by default (all instances disabled)
+        // Initialize card visibility state (all visible by default)
         for (const device of this.deviceEojMap) {
-            const card = document.getElementById('card-' + device.key);
-            if (card) {
-                card.style.display = 'none';
-            }
+            this.cardVisibility[device.key] = true;
         }
         
         // Initial status load
@@ -255,6 +333,7 @@ window.toggleDevice = (deviceKey, eojCode, enabled) => App.toggleDevice(deviceKe
 window.saveDeviceSettings = () => App.saveDeviceSettings();
 window.openDeviceManager = () => App.openDeviceManager();
 window.closeDeviceManager = () => App.closeDeviceManager();
+window.handleModalToggleChange = (eoj, checked) => App.handleModalToggleChange(eoj, checked);
 
 // Device-specific function aliases for inline onclick handlers
 window.setACMode = (mode) => AirConditioner.setMode(mode);
