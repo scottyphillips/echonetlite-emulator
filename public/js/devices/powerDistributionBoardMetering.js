@@ -165,12 +165,12 @@ const PowerDistributionBoardMetering = {
         
         if (!container) {
             // Create container if it doesn't exist
-            const controlSection = document.querySelector('#card-powerDistributionBoardMetering .control-section:last-child');
-            if (controlSection) {
+            const cardBody = document.querySelector('#card-powerDistributionBoardMetering .card-body');
+            if (cardBody) {
                 container = document.createElement('div');
                 container.id = 'pdbm-channels-container';
                 container.className = 'channel-grid';
-                controlSection.parentNode.insertBefore(container, controlSection);
+                cardBody.appendChild(container);
             }
         }
 

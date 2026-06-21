@@ -544,3 +544,77 @@ body {
 ::-webkit-scrollbar-thumb:hover {
     background: var(--text-secondary);
 }
+
+/* Power Distribution Board - Channel Grid */
+.channel-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+    gap: 8px;
+    padding: 16px 20px;
+    margin-top: 16px;
+}
+
+.channel-cell {
+    background-color: rgba(0,0,0,0.2);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 12px 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.2s ease;
+}
+
+.channel-cell:hover {
+    border-color: var(--accent-blue);
+    background-color: rgba(59, 130, 246, 0.1);
+}
+
+.channel-cell.active {
+    border-color: var(--accent-green);
+    background-color: rgba(16, 185, 129, 0.1);
+}
+
+.channel-number {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.channel-cell.active .channel-number {
+    color: var(--accent-green);
+}
+
+.channel-power {
+    font-size: 16px;
+    font-weight: 600;
+    font-family: 'Consolas', 'Monaco', monospace;
+    color: var(--text-primary);
+}
+
+.channel-cell.active .channel-power {
+    color: var(--accent-green);
+}
+
+#pdbm-channel-summary {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 12px;
+    background-color: var(--bg-card);
+    border-radius: 6px;
+    margin-bottom: 8px;
+    font-size: 12px;
+    font-family: 'Consolas', 'Monaco', monospace;
+}
+
+#pdbm-total-power {
+    color: var(--accent-blue);
+    font-weight: 600;
+}
+
+#pdbm-active-channels {
+    color: var(--text-secondary);
+}
