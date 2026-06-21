@@ -94,7 +94,7 @@ export class EvChargerDischargerDevice {
     if (newStatus.operationStatus !== undefined) {
       this._status.operationStatus = newStatus.operationStatus!;
       const statusValue = newStatus.operationStatus === "on" ? 0x30 : 0x31;
-      this._echoObject["027e01"][0x80] = [statusValue];
+      this._echoObject["027e01"]["80"] = [statusValue];
       this.notifyPropertyChanged("80");
     }
 
@@ -106,14 +106,14 @@ export class EvChargerDischargerDevice {
       for (let i = 0; i < locStr.length && i < 32; i++) {
         locBytes.push(locStr.charCodeAt(i));
       }
-      this._echoObject["027e01"][0x81] = locBytes.length > 0 ? locBytes : [0x00];
+      this._echoObject["027e01"]["81"] = locBytes.length > 0 ? locBytes : [0x00];
       this.notifyPropertyChanged("81");
     }
 
     if (newStatus.faultStatus !== undefined) {
       this._status.faultStatus = newStatus.faultStatus!;
       const faultValue = newStatus.faultStatus === "faultOccurred" ? 0x41 : 0x42;
-      this._echoObject["027e01"][0x88] = [faultValue];
+      this._echoObject["027e01"]["88"] = [faultValue];
       this.notifyPropertyChanged("88");
     }
 
@@ -126,8 +126,8 @@ export class EvChargerDischargerDevice {
         "dischargeable": 0x42,
         "chargeableAndDischargeable": 0x43
       };
-      this._echoObject["027e01"][0xC7] = [statusMap[newStatus.vehicleConnectionAndChargeableStatus] || 0x30];
-      this.notifyPropertyChanged("C7");
+      this._echoObject["027e01"]["c7"] = [statusMap[newStatus.vehicleConnectionAndChargeableStatus] || 0x30];
+      this.notifyPropertyChanged("c7");
     }
 
     if (newStatus.operationModeSetting !== undefined) {
@@ -140,27 +140,27 @@ export class EvChargerDischargerDevice {
         "test": 0x45,
         "other": 0x40
       };
-      this._echoObject["027e01"][0xDA] = [modeMap[newStatus.operationModeSetting] || 0x40];
-      this.notifyPropertyChanged("DA");
+      this._echoObject["027e01"]["da"] = [modeMap[newStatus.operationModeSetting] || 0x40];
+      this.notifyPropertyChanged("da");
       
       // Also update actual operation mode when operation mode changes
       if (newStatus.operationModeSetting === "charge") {
         this._status.actualOperationMode = "charge";
-        this._echoObject["027e01"][0xE1] = [0x42];
-        this.notifyPropertyChanged("E1");
+        this._echoObject["027e01"]["e1"] = [0x42];
+        this.notifyPropertyChanged("e1");
         
         // Simulate power consumption when charging
         this._status.instantaneousPowerConsumption = 3000; // 3kW
-        this._echoObject["027e01"][0x84] = this.toUint16Array(3000);
+        this._echoObject["027e01"]["84"] = this.toUint16Array(3000);
         this.notifyPropertyChanged("84");
       } else if (newStatus.operationModeSetting === "standby") {
         this._status.actualOperationMode = "standby";
-        this._echoObject["027e01"][0xE1] = [0x44];
-        this.notifyPropertyChanged("E1");
+        this._echoObject["027e01"]["e1"] = [0x44];
+        this.notifyPropertyChanged("e1");
         
         // Zero power when standby
         this._status.instantaneousPowerConsumption = 0;
-        this._echoObject["027e01"][0x84] = this.toUint16Array(0);
+        this._echoObject["027e01"]["84"] = this.toUint16Array(0);
         this.notifyPropertyChanged("84");
       }
     }
@@ -172,8 +172,8 @@ export class EvChargerDischargerDevice {
         "independentOperation": 0x01,
         "gridConnectionReverseFlowNotAcceptable": 0x02
       };
-      this._echoObject["027e01"][0xDB] = [typeMap[newStatus.systemInterconnectionType] || 0x00];
-      this.notifyPropertyChanged("DB");
+      this._echoObject["027e01"]["db"] = [typeMap[newStatus.systemInterconnectionType] || 0x00];
+      this.notifyPropertyChanged("db");
     }
 
     if (newStatus.chargingMethod !== undefined) {
@@ -186,8 +186,8 @@ export class EvChargerDischargerDevice {
         "designatedCurrent": 0x04,
         "designatedPurchasingPower": 0x05
       };
-      this._echoObject["027e01"][0xDC] = [methodMap[newStatus.chargingMethod] || 0x00];
-      this.notifyPropertyChanged("DC");
+      this._echoObject["027e01"]["dc"] = [methodMap[newStatus.chargingMethod] || 0x00];
+      this.notifyPropertyChanged("dc");
     }
 
     if (newStatus.dischargingMethod !== undefined) {
@@ -200,8 +200,8 @@ export class EvChargerDischargerDevice {
         "designatedCurrent": 0x04,
         "designatedPurchasingPower": 0x05
       };
-      this._echoObject["027e01"][0xDD] = [methodMap[newStatus.dischargingMethod] || 0x00];
-      this.notifyPropertyChanged("DD");
+      this._echoObject["027e01"]["dd"] = [methodMap[newStatus.dischargingMethod] || 0x00];
+      this.notifyPropertyChanged("dd");
     }
 
     if (newStatus.actualOperationMode !== undefined) {
@@ -214,26 +214,26 @@ export class EvChargerDischargerDevice {
         "preparation": 0x48,
         "other": 0x40
       };
-      this._echoObject["027e01"][0xE1] = [modeMap[newStatus.actualOperationMode] || 0x40];
-      this.notifyPropertyChanged("E1");
+      this._echoObject["027e01"]["e1"] = [modeMap[newStatus.actualOperationMode] || 0x40];
+      this.notifyPropertyChanged("e1");
     }
 
     if (newStatus.maintenanceStatus !== undefined) {
       this._status.maintenanceStatus = newStatus.maintenanceStatus!;
       const maintValue = newStatus.maintenanceStatus === "maintenanceNeeded" ? 0x41 : 0x42;
-      this._echoObject["027e01"][0xE5] = [maintValue];
-      this.notifyPropertyChanged("E5");
+      this._echoObject["027e01"]["e5"] = [maintValue];
+      this.notifyPropertyChanged("e5");
     }
 
     if (newStatus.instantaneousPowerConsumption !== undefined) {
       this._status.instantaneousPowerConsumption = newStatus.instantaneousPowerConsumption!;
-      this._echoObject["027e01"][0x84] = this.toUint16Array(newStatus.instantaneousPowerConsumption);
+      this._echoObject["027e01"]["84"] = this.toUint16Array(newStatus.instantaneousPowerConsumption);
       this.notifyPropertyChanged("84");
     }
 
     if (newStatus.cumulativeElectricEnergyConsumption !== undefined) {
       this._status.cumulativeElectricEnergyConsumption = newStatus.cumulativeElectricEnergyConsumption!;
-      this._echoObject["027e01"][0x85] = this.toUint32Array(newStatus.cumulativeElectricEnergyConsumption);
+      this._echoObject["027e01"]["85"] = this.toUint32Array(newStatus.cumulativeElectricEnergyConsumption);
       this.notifyPropertyChanged("85");
     }
   }
@@ -253,7 +253,7 @@ export class EvChargerDischargerDevice {
         this.setStatus({ installationLocation: locStr });
         return true;
       
-      case "DA":
+      case "da":
         // Operation mode setting
         const modeMap: Record<number, string> = {
           0x41: "rapidCharge",
@@ -270,7 +270,7 @@ export class EvChargerDischargerDevice {
         }
         break;
       
-      case "DC":
+      case "dc":
         // Charging method
         const methodMap: Record<number, string> = {
           0x00: "others",
@@ -287,7 +287,7 @@ export class EvChargerDischargerDevice {
         }
         break;
 
-      case "DD":
+      case "dd":
         // Discharging method
         const dischargeMethodMap: Record<number, string> = {
           0x00: "others",
@@ -352,7 +352,7 @@ export class EvChargerDischargerDevice {
         return `${(this._status.cumulativeElectricEnergyConsumption / 1000).toFixed(3)} kWh`;
       case "88":
         return this._status.faultStatus === "noFault" ? "No fault" : "Fault occurred";
-      case "C7": {
+      case "c7": {
         const statusMap: Record<string, string> = {
           "notConnected": "Not Connected",
           "connected": "Connected",
@@ -362,7 +362,7 @@ export class EvChargerDischargerDevice {
         };
         return statusMap[this._status.vehicleConnectionAndChargeableStatus] || "Unknown";
       }
-      case "DA": {
+      case "da": {
         const modeMap: Record<string, string> = {
           "rapidCharge": "Rapid Charge",
           "charge": "Charge",
@@ -373,7 +373,7 @@ export class EvChargerDischargerDevice {
         };
         return modeMap[this._status.operationModeSetting] || "Unknown";
       }
-      case "DB": {
+      case "db": {
         const typeMap: Record<string, string> = {
           "gridConnectionReverseFlowAcceptable": "Grid (reverse flow OK)",
           "independentOperation": "Independent",
@@ -381,7 +381,7 @@ export class EvChargerDischargerDevice {
         };
         return typeMap[this._status.systemInterconnectionType] || "Unknown";
       }
-      case "DC": {
+      case "dc": {
         const methodMap: Record<string, string> = {
           "others": "Others",
           "maxChargingPower": "Max Power",
@@ -392,7 +392,7 @@ export class EvChargerDischargerDevice {
         };
         return methodMap[this._status.chargingMethod] || "Unknown";
       }
-      case "DD": {
+      case "dd": {
         const methodMap: Record<string, string> = {
           "others": "Others",
           "maxDischargingPower": "Max Discharge Power",
@@ -403,7 +403,7 @@ export class EvChargerDischargerDevice {
         };
         return methodMap[this._status.dischargingMethod] || "Unknown";
       }
-      case "E1": {
+      case "e1": {
         const modeMap: Record<string, string> = {
           "charge": "Charge",
           "discharge": "Discharge",
@@ -414,7 +414,7 @@ export class EvChargerDischargerDevice {
         };
         return modeMap[this._status.actualOperationMode] || "Unknown";
       }
-      case "E5":
+      case "e5":
         return this._status.maintenanceStatus === "normal" ? "Normal" : "Maintenance Needed";
       default:
         return "Unknown";
