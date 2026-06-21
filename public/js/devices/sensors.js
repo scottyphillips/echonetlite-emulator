@@ -4,13 +4,10 @@
 const Sensors = {
     tempSensor: { temp: 20.0, hum: 50 },
     motionSensor: { state: "notDetected" },
-    debounceTimer: null,
 
-    // Temperature Sensor Methods
-    updateTempDisplay() {
-        BaseDevice.updateSliderDisplay('temp-slider', 'temp-slider-val', '°C');
-        
-        this.debounceTimer = BaseDevice.createDebounce(300, async () => {
+    // Pre-create debounce-wrapped API functions (stored once, called repeatedly)
+    _debouncedSendTemp: function() {
+        return BaseDevice.createDebounce(300, async () => {
             try {
                 const slider = document.getElementById('temp-slider');
                 await fetch("/api/sensorMeter", {
@@ -18,32 +15,41 @@ const Sensors = {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ 
                         temp: parseFloat(slider.value), 
-                        hum: this.tempSensor.hum 
+                        hum: Sensors.tempSensor.hum 
                     })
                 });
                 await App.getStatus();
             } catch (e) { console.error("Temp sensor error:", e); }
         });
-    },
+    }(),
 
-    // Humidity Sensor Methods
-    updateHumDisplay() {
-        BaseDevice.updateSliderDisplay('hum-slider', 'hum-slider-val', '%');
-        
-        this.debounceTimer = BaseDevice.createDebounce(300, async () => {
+    _debouncedSendHum: function() {
+        return BaseDevice.createDebounce(300, async () => {
             try {
                 const slider = document.getElementById('hum-slider');
                 await fetch("/api/sensorMeter", {
                     method: "POST",
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ 
-                        temp: this.tempSensor.temp, 
+                        temp: Sensors.tempSensor.temp, 
                         hum: parseInt(slider.value) 
                     })
                 });
                 await App.getStatus();
             } catch (e) { console.error("Hum sensor error:", e); }
         });
+    }(),
+
+    // Temperature Sensor Methods
+    updateTempDisplay() {
+        BaseDevice.updateSliderDisplay('temp-slider', 'temp-slider-val', '°C');
+        this._debouncedSendTemp();
+    },
+
+    // Humidity Sensor Methods
+    updateHumDisplay() {
+        BaseDevice.updateSliderDisplay('hum-slider', 'hum-slider-val', '%');
+        this._debouncedSendHum();
     },
 
     // Motion Sensor Methods
