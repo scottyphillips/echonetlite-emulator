@@ -1696,11 +1696,12 @@
         }
 
         function updateDpmlStatus() {
-            const operationStatus = currentStatus.distributionPanelMeter.operationStatus === "on" ? "ON" : "OFF";
-            const faultStatus = currentStatus.distributionPanelMeter.faultStatus === "faultOccurred" ? "FAULT" : "NO FAULT";
-            const powerConsumption = currentStatus.distributionPanelMeter.instantaneousPowerConsumption;
-            const energyConsumption = currentStatus.distributionPanelMeter.cumulativeElectricEnergy / 1000; // Convert from Wh to kWh
-            const currentLimit = currentStatus.distributionPanelMeter.currentLimit;
+            const dpmc = currentStatus.distributionPanelMeterController;
+            const operationStatus = dpmc.operationStatus === "on" ? "ON" : "OFF";
+            const faultStatus = dpmc.faultStatus === "faultOccurred" ? "FAULT" : "NO FAULT";
+            const powerConsumption = dpmc.instantaneousPowerConsumption;
+            const energyConsumption = dpmc.cumulativeElectricEnergy / 1000; // Convert from Wh to kWh
+            const currentLimit = dpmc.currentLimit;
 
             document.getElementById('dpm-status-display').textContent = operationStatus;
             document.getElementById('dpm-fault-display').textContent = faultStatus;
@@ -1759,8 +1760,8 @@
                     currentStatus.bathWaterHeater = status.bathWaterHeater || status.bath;
                     updateBathStatus();
                 }
-                if (status.distributionPanelMeter) {
-                    currentStatus.distributionPanelMeter = status.distributionPanelMeter;
+                if (status.distributionPanelMeterController) {
+                    currentStatus.distributionPanelMeterController = status.distributionPanelMeterController;
                     updateDpmlStatus();
                 }
                 if (status.evChargerDischarger) {
