@@ -14,7 +14,7 @@ import { ShutterDevice } from "./devices/shutter";
 import { DoorDevice, SwitchDevice } from "./devices/door";
 import { BathWaterHeaterDevice } from "./devices/bathWaterHeater";
 import { AirConditionerDevice } from "./devices/airConditioner";
-import { DistributionPanelMeterControllerDevice } from "./devices/distributionPanelMeterController";
+import { DistributionPanelMeterControllerDevice, DistributionPanelMeterControllerStatus } from "./devices/distributionPanelMeterController";
 import { EvChargerDischargerDevice, EvChargerDischargerStatus } from "./devices/evChargerDischarger";
 
 // Re-export types for backward compatibility
@@ -475,6 +475,39 @@ export class Controller {
     newValue: number[]
   ): boolean => {
     return this.airConditioner.setStatusFromEchoNet(propertyCodeText, newValue);
+  };
+
+  // === Distribution Panel Meter Controller ===
+  public getDistributionPanelMeterControllerStatus = (
+    req: express.Request,
+    res: express.Response
+  ): void => {
+    res.json(this.distributionPanelMeterController.status);
+  };
+
+  public setDistributionPanelMeterControllerStatusFromRestApi = (
+    req: express.Request,
+    res: express.Response
+  ): void => {
+    const newStatus: Partial<DistributionPanelMeterControllerStatus> = {};
+    
+    if (req.body.currentLimit !== undefined) {
+      const limit = typeof req.body.currentLimit === "number" 
+        ? Math.max(0, Math.min(100, req.body.currentLimit)) 
+        : this.distributionPanelMeterController.status.currentLimit;
+      newStatus.currentLimit = limit;
+    }
+
+    if (req.body.operationStatus !== undefined) {
+      newStatus.operationStatus = req.body.operationStatus === "on" ? "on" : "off";
+    }
+
+    if (Object.keys(newStatus).length > 0) {
+      this.distributionPanelMeterController.setStatus(newStatus);
+      this.logger.dir(this.distributionPanelMeterController.status, { depth: 3 });
+    }
+    
+    res.json(this.distributionPanelMeterController.status);
   };
 
   // === EV Charger Discharger ===

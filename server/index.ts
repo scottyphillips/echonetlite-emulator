@@ -502,6 +502,9 @@ app.post(
 app.get("/api/airConditioner", controller.getAirConditionerStatus);
 app.post("/api/airConditioner", controller.setAirConditionerStatusFromRestApi);
 
+app.get("/api/distributionPanelMeterController", controller.getDistributionPanelMeterControllerStatus);
+app.post("/api/distributionPanelMeterController", controller.setDistributionPanelMeterControllerStatusFromRestApi);
+
 app.get("/api/evChargerDischarger", controller.getEvChargerDischargerStatus);
 app.post("/api/evChargerDischarger", controller.setEvChargerDischargerStatusFromRestApi);
 
