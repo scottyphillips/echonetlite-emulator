@@ -172,6 +172,11 @@ body {
     font-size: 18px;
 }
 
+.device-icon svg {
+    width: 18px;
+    height: 18px;
+}
+
 .device-icon.hvac { background: rgba(59, 130, 246, 0.15); color: var(--accent-blue); }
 .device-icon.lighting { background: rgba(245, 158, 11, 0.15); color: var(--accent-orange); }
 .device-icon.sensor { background: rgba(16, 185, 129, 0.15); color: var(--accent-green); }
