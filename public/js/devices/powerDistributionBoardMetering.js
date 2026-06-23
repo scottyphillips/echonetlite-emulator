@@ -1,257 +1,96 @@
 // Power Distribution Board Metering (Panasonic Smart Cosmo IP)
-// Handles power distribution board meter functionality with 29-channel monitoring
 
 const PowerDistributionBoardMetering = {
-    state: { 
-        operationStatus: "on", 
-        faultStatus: "noFault", 
+    state: {
+        operationStatus: 'on',
+        faultStatus: 'noFault',
         currentLimit: 80,
-        // Per ECHONETLite spec: each channel has cumulativeEnergy(4B) + currentR(2B) + currentT(2B)
-        simplexPowerChannels: [] // Array of {channel, cumulativeEnergyKwh, currentRPhaseA, currentTPhaseA, powerW} objects
+        simplexPowerChannels: [],
     },
 
-    // Pre-create debounce-wrapped API function (stored once, called repeatedly)
-    _debouncedUpdatePdbmLimit: function() {
-        return BaseDevice.createDebounce(300, async () => {
-            const slider = document.getElementById('pdbm-limit-slider');
-            await PowerDistributionBoardMetering.setPdbmLimit(parseInt(slider.value));
-        });
-    }(),
+    _debouncedUpdateLimit: BaseDevice.createDebounce(300, async () => {
+        const slider = document.getElementById('pdbm-limit-slider');
+        await PowerDistributionBoardMetering.setPdbmLimit(parseInt(slider.value));
+    }),
 
     updatePdbmLimitDisplay() {
         BaseDevice.updateSliderDisplay('pdbm-limit-slider', 'pdbm-limit-slider-val', '%');
     },
 
+    updatePdbmLimit() {
+        this._debouncedUpdateLimit();
+    },
+
     async setPdbmLimit(limit) {
         try {
-            await fetch("/api/powerDistributionBoardMetering", {
-                method: "POST",
+            const res = await fetch('/api/powerDistributionBoardMetering', {
+                method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ currentLimit: limit })
+                body: JSON.stringify({ currentLimit: limit }),
             });
-            await App.getStatus();
-        } catch (e) { console.error("PDBM limit error:", e); }
+            if (res.ok) await App.getStatus();
+        } catch (e) { console.error('PDBM limit error:', e); }
     },
 
     async togglePdbmStatus() {
-        const newState = this.state.operationStatus === "on" ? "off" : "on";
-        await this.setPdbmOperationStatus(newState);
+        await this.setPdbmOperationStatus(this.state.operationStatus !== 'on');
     },
 
     async setPdbmOperationStatus(on) {
         try {
-            await fetch("/api/powerDistributionBoardMetering", {
-                method: "POST",
+            const res = await fetch('/api/powerDistributionBoardMetering', {
+                method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ operationStatus: on ? "on" : "off" })
+                body: JSON.stringify({ operationStatus: on ? 'on' : 'off' }),
             });
-            await App.getStatus();
-        } catch (e) { console.error("PDBM status error:", e); }
-    },
-
-    updatePdbmLimit() {
-        this._debouncedUpdatePdbmLimit();
-    },
-
-    /**
-     * Parse EPC 0xB7 list data into channel array
-     * Per spec: [startChannel(1byte), rangeCount(1byte), ch1Power(4bytes,int32,W), ch2Power(4bytes), ...]
-     */
-    parseSimplexPowerList(b7Data) {
-        if (!b7Data || b7Data.length < 4) return [];
-        
-        const startChannel = b7Data[0]; // Start channel (1-based)
-        const rangeCount = b7Data[1];   // Number of channels in list
-        if (rangeCount === 0) return [];
-        
-        const channels = [];
-        let offset = 2; // Skip startChannel and rangeCount bytes
-        
-        // Each channel power value is 4 bytes (big-endian signed integer, unit=W)
-        for (let i = 0; i < rangeCount && offset + 3 < b7Data.length; i++) {
-            const power = (b7Data[offset] << 24) | (b7Data[offset + 1] << 16) | 
-                         (b7Data[offset + 2] << 8) | b7Data[offset + 3];
-            
-            // Convert from signed 32-bit to handle positive values only
-            const powerValue = power > 0x7FFFFFFF ? power - 0x100000000 : power;
-            
-            channels.push({
-                channel: startChannel + i,
-                power: Math.max(0, powerValue)
-            });
-            
-            offset += 4;
-        }
-        
-        return channels;
-    },
-
-    /**
-     * Parse individual channel EPCs (0xD0-0xEF) into channel array
-     * Per ECHONETLite spec (object_PDB_01): 8 bytes = cumulativeEnergy(4B,uint32,kWh) + currentR(2B,int16,A×0.1) + currentT(2B,int16,A×0.1)
-     */
-    parseIndividualChannels(echoObject) {
-        const channels = [];
-        const eojData = echoObject?.["028701"];
-        
-        if (!eojData) return channels;
-
-        // Channel EPC mapping: D0=Ch1, D1=Ch2, ..., D9=Ch10, E0=Ch17, ..., EF=Ch32
-        const channelEpcMap = {
-            'd0': 1, 'd1': 2, 'd2': 3, 'd3': 4, 'd4': 5, 'd5': 6,
-            'd6': 7, 'd7': 8, 'd8': 9, 'd9': 10,
-            'da': 11, 'db': 12, 'dc': 13, 'dd': 14, 'de': 15, 'df': 16,
-            'e0': 17, 'e1': 18, 'e2': 19, 'e3': 20, 'e4': 21, 'e5': 22,
-            'e6': 23, 'e7': 24, 'e8': 25, 'e9': 26,
-            'ea': 27, 'eb': 28, 'ec': 29, 'ed': 30, 'ee': 31, 'ef': 32
-        };
-
-        for (const [epc, channelNum] of Object.entries(channelEpcMap)) {
-            const epcData = eojData[epc];
-            if (epcData && epcData.length >= 8) {
-                // Parse cumulative energy (4 bytes, uint32)
-                const cumulativeEnergy = (epcData[0] << 24) | (epcData[1] << 16) | 
-                                         (epcData[2] << 8) | epcData[3];
-                
-                // Parse R phase current (2 bytes, int16 × 0.1A)
-                let currentR = ((epcData[4] << 8) | epcData[5]) & 0xFFFF;
-                if (currentR > 32767) currentR -= 65536; // signed int16
-                
-                // Parse T phase current (2 bytes, int16 × 0.1A)
-                let currentT = ((epcData[6] << 8) | epcData[7]) & 0xFFFF;
-                if (currentT > 32767) currentT -= 65536; // signed int16
-
-                // Skip noData markers (0x7FFE = 32766 for currents, 0xFFFFFFFE for energy)
-                const isNoData = cumulativeEnergy === 0xFFFFFFFE || currentR === 0x7FFE || currentT === 0x7FFE;
-                
-                if (!isNoData) {
-                    // Calculate power from current (assuming 100V, PF=1): P = V × I
-                    const currentAmps = currentR / 10; // Convert ×0.1 to actual amps
-                    const powerW = Math.round(100 * currentAmps);
-                    
-                    channels.push({
-                        channel: channelNum,
-                        cumulativeEnergyKwh: cumulativeEnergy,
-                        currentRPhaseA: currentR,
-                        currentTPhaseA: currentT,
-                        powerW: powerW
-                    });
-                } else {
-                    // Include noData channels with zero values for complete grid display
-                    channels.push({
-                        channel: channelNum,
-                        cumulativeEnergyKwh: 0,
-                        currentRPhaseA: 0,
-                        currentTPhaseA: 0,
-                        powerW: 0
-                    });
-                }
-            }
-        }
-
-        return channels.sort((a, b) => a.channel - b.channel);
+            if (res.ok) await App.getStatus();
+        } catch (e) { console.error('PDBM status error:', e); }
     },
 
     updateStatus() {
-        const state = this.state;
-        const operationStatus = state.operationStatus === "on" ? "ON" : "OFF";
-        const faultStatus = state.faultStatus === "faultOccurred" ? "FAULT" : "NO FAULT";
+        const s = this.state;
+        document.getElementById('pdbm-status-display').textContent = s.operationStatus === 'on' ? 'ON' : 'OFF';
+        document.getElementById('pdbm-fault-display').textContent  = s.faultStatus === 'faultOccurred' ? 'FAULT' : 'NO FAULT';
 
-        document.getElementById('pdbm-status-display').textContent = operationStatus;
-        document.getElementById('pdbm-fault-display').textContent = faultStatus;
-
-        // Update slider
         const slider = document.getElementById('pdbm-limit-slider');
-        if (document.activeElement !== slider) {
-            slider.value = state.currentLimit;
-        }
-        document.getElementById('pdbm-limit-slider-val').textContent = state.currentLimit + '%';
+        if (document.activeElement !== slider) slider.value = s.currentLimit;
+        document.getElementById('pdbm-limit-slider-val').textContent = s.currentLimit + '%';
 
-        // Update channel power display from App.currentStatus
-        const currentStatus = App.currentStatus?.powerDistributionBoardMetering;
-        if (currentStatus) {
-            // Try to get channel data from echoObject if available
-            let channels = state.simplexPowerChannels || [];
-            
-            // If we have simplexPowerChannels in state, use them
-            if (channels.length === 0 && currentStatus.echoObject) {
-                channels = this.parseIndividualChannels(currentStatus.echoObject);
-            }
-            
-            // Also try parsing from B7 list if available
-            if (channels.length === 0 && currentStatus.b7List) {
-                channels = this.parseSimplexPowerList(currentStatus.b7List);
-            }
-
-            this.renderChannelGrid(channels);
-        }
+        const channels = s.simplexPowerChannels || [];
+        if (channels.length > 0) this.renderChannelGrid(channels);
     },
 
-    /**
-     * Render channel power values in a grid display
-     */
     renderChannelGrid(channels) {
         let container = document.getElementById('pdbm-channels-container');
-        
         if (!container) {
-            // Create container if it doesn't exist
-            const cardBody = document.querySelector('#card-powerDistributionBoardMetering .card-body');
-            if (cardBody) {
-                container = document.createElement('div');
-                container.id = 'pdbm-channels-container';
-                container.className = 'channel-grid';
-                cardBody.appendChild(container);
-            }
+            container = document.createElement('div');
+            container.id        = 'pdbm-channels-container';
+            container.className = 'channel-grid';
+            document.querySelector('#card-powerDistributionBoardMetering .card-body')?.appendChild(container);
         }
-
         if (!container) return;
 
-        // Get active channels (power > 0) for summary
         const activeChannels = channels.filter(ch => ch.power > 0);
-        const totalPower = channels.reduce((sum, ch) => sum + ch.power, 0);
+        const totalPower     = channels.reduce((sum, ch) => sum + ch.power, 0);
 
-        // Update or create summary display
         let summaryDiv = document.getElementById('pdbm-channel-summary');
         if (!summaryDiv) {
             summaryDiv = document.createElement('div');
             summaryDiv.id = 'pdbm-channel-summary';
-            summaryDiv.style.cssText = 'display:flex;justify-content:space-between;padding:8px 12px;background:var(--bg-dark);border-radius:6px;margin-bottom:8px;font-size:12px;';
-            
-            const totalSpan = document.createElement('span');
-            totalSpan.id = 'pdbm-total-power';
-            totalSpan.style.cssText = 'color:var(--accent-blue)';
-            
-            const activeSpan = document.createElement('span');
-            activeSpan.id = 'pdbm-active-channels';
-            
-            summaryDiv.appendChild(totalSpan);
-            summaryDiv.appendChild(activeSpan);
             container.parentNode.insertBefore(summaryDiv, container.nextSibling);
         }
+        summaryDiv.innerHTML =
+            `<span id="pdbm-total-power">Total: ${totalPower}W</span>` +
+            `<span id="pdbm-active-channels">Active: ${activeChannels.length}/${channels.length} channels</span>`;
 
-        document.getElementById('pdbm-total-power').textContent = `Total: ${totalPower}W`;
-        document.getElementById('pdbm-active-channels').textContent = `Active: ${activeChannels.length}/${channels.length} channels`;
-
-        // Build channel grid HTML
-        let html = '';
-        for (let i = 0; i < Math.min(channels.length, 29); i++) {
-            const ch = channels[i];
-            const power = ch?.powerW || 0;
+        container.innerHTML = channels.slice(0, 29).map(ch => {
+            const power    = ch?.powerW || 0;
             const isActive = power > 0;
-            
-            html += `<div class="channel-cell ${isActive ? 'active' : ''}" title="CH${ch.channel}: ${power}W | I_R=${((ch.currentRPhaseA||0)/10).toFixed(2)}A | I_T=${((ch.currentTPhaseA||0)/10).toFixed(2)}A | E=${ch.cumulativeEnergyKwh||0}kWh">
+            return `<div class="channel-cell ${isActive ? 'active' : ''}"
+                        title="CH${ch.channel}: ${power}W | I_R=${((ch.currentRPhaseA||0)/10).toFixed(2)}A | I_T=${((ch.currentTPhaseA||0)/10).toFixed(2)}A | E=${ch.cumulativeEnergyKwh||0}kWh">
                 <div class="channel-number">CH${ch.channel}</div>
                 <div class="channel-power">${power}W</div>
             </div>`;
-        }
-        
-        container.innerHTML = html;
+        }).join('');
     },
-
-    toggleDevice(enabled) {
-        const card = document.getElementById('card-powerDistributionBoardMetering');
-        if (card) {
-            card.classList.toggle('disabled', !enabled);
-        }
-    }
 };
